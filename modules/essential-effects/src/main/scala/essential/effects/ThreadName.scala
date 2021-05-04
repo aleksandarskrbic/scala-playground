@@ -3,7 +3,7 @@ package essential.effects
 import cats.effect._
 
 case class ThreadName(name: String) extends AnyVal {
-  override def toString(): String =
+  override def toString: String =
     Colorize.reversed(name)
 }
 

@@ -9,7 +9,7 @@ object debug {
   implicit class DebugHelper[A](ioa: IO[A]) { // <1>
 
     /** Log the value of the effect along with the thread it was computed on. Logging defaults to `println`. */
-    def debug(): IO[A] =
+    def debug: IO[A] =
       for {
         a  <- ioa
         tn <- ThreadName.current()
