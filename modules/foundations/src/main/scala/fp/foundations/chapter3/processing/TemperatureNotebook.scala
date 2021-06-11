@@ -1,7 +1,8 @@
 package fp.foundations.chapter3.processing
 
 import fp.foundations.chapter3.processing.model.Sample
-import fp.foundations.chapter3.processing.util.TimeUtil.{ bench, Labelled }
+import fp.foundations.chapter3.processing.util.ThreadPoolUtil.fixedSizeExecutionContext
+import fp.foundations.chapter3.processing.util.TimeUtil.{Labelled, bench}
 import kantan.csv._
 import kantan.csv.ops._
 
@@ -34,9 +35,10 @@ object TemperatureNotebook extends App {
   // a. Implement `samples`, a `ParList` containing all the `Samples` in `successes`.
   // Partition `parSamples` so that it contains 10 partitions of roughly equal size.
   // Note: Check `ParList` companion object
+  val ec = fixedSizeExecutionContext(8)
   val partitionSize = math.ceil(samples.size.toDouble / 10).toInt
   val parSamples: ParList[Sample] =
-    ParList.byPartitionSize(partitionSize, samples)
+    ParList.byPartitionSize(partitionSize, samples, ec)
 
   parSamples.partitions.zipWithIndex.foreach {
     case (partition, index) =>

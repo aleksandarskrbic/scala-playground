@@ -1,9 +1,11 @@
 package fp.foundations.chapter3.processing
 
-import fp.foundations.chapter3.processing.model.{ Sample, Summary }
+import fp.foundations.chapter3.processing.model.{Sample, Summary}
 
 import java.time.LocalDate
-import org.scalacheck.{ Arbitrary, Gen }
+import org.scalacheck.{Arbitrary, Gen}
+
+import scala.concurrent.ExecutionContext
 
 trait ParListTestInstances {
   val sampleGen: Gen[Sample] =
@@ -38,7 +40,7 @@ trait ParListTestInstances {
     Arbitrary(
       Gen
         .listOf(Gen.listOf(arbA.arbitrary))
-        .map(partitions => new ParList(partitions))
+        .map(partitions => new ParList(partitions, ExecutionContext.global))
     )
 
   val summaryGen: Gen[Summary] =
