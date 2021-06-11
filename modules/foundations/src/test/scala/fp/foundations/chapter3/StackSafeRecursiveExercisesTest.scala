@@ -8,13 +8,6 @@ class StackSafeRecursiveExercisesTest extends AnyFunSuite with ScalaCheckDrivenP
 
   val largeSize = 100000
 
-  test("contains") {
-    assert(contains(List(1, 5, 2), 5) == true)
-    assert(contains(List(1, 5, 2), 3) == false)
-    assert(contains(Nil, 3) == false)
-    assert(contains(List.fill(largeSize)(0), 1) == false)
-  }
-
   test("unsafeSum is not stack-safe") {
     try {
       unsafeSum(List.fill(largeSize)(0))

@@ -1,6 +1,7 @@
 package fp.foundations.chapter3.processing
 
 import fp.foundations.chapter3.processing.model.Sample
+import fp.foundations.chapter3.processing.util.TimeUtil.{Labelled, bench}
 import kantan.csv._
 import kantan.csv.ops._
 

@@ -51,8 +51,8 @@ object TemperatureExercises {
   // `summaryList` iterate 4 times over `samples`, one for each field.
   def summaryList(samples: List[Sample]): Summary =
     Summary(
-      min = samples.minByOption(_.temperatureFahrenheit),
-      max = samples.maxByOption(_.temperatureFahrenheit),
+      min = Option(samples.minBy(_.temperatureFahrenheit)),
+      max = Option(samples.minBy(_.temperatureFahrenheit)),
       sum = samples.foldLeft(0.0)((state, sample) => state + sample.temperatureFahrenheit),
       size = samples.size
     )
