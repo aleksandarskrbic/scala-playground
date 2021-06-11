@@ -1,7 +1,7 @@
 package fp.foundations.chapter3.processing.util
 
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.{Executors, ThreadFactory}
+import java.util.concurrent.{ Executors, ThreadFactory }
 import scala.concurrent.ExecutionContext
 
 // copied and adapted from cats-effect IOApp

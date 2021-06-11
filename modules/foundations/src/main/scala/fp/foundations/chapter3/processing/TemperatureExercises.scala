@@ -1,6 +1,6 @@
 package fp.foundations.chapter3.processing
 
-import fp.foundations.chapter3.processing.model.{Sample, Summary}
+import fp.foundations.chapter3.processing.model.{ Sample, Summary }
 
 object TemperatureExercises {
   // b. Implement `minSampleByTemperature` which finds the `Sample` with the coldest temperature.
@@ -9,7 +9,15 @@ object TemperatureExercises {
   // Step 2: Find the minimum value among the local minimums.
   // Note: We'll write test in the file `ParListTest.scala`
   def minSampleByTemperature(samples: ParList[Sample]): Option[Sample] =
-    ???
+    minSampleByTemperatureList(samples.partitions.flatMap(minSampleByTemperatureList))
+
+  def minSampleByTemperatureList(partition: List[Sample]): Option[Sample] =
+    partition.foldLeft(Option.empty[Sample]) {
+      case (None, sample) => Some(sample)
+      case (Some(minSample), sample) =>
+        if (sample.temperatureFahrenheit < minSample.temperatureFahrenheit) Some(sample)
+        else Some(minSample)
+    }
 
   // c. Implement `averageTemperature` which finds the average temperature across all `Samples`.
   // `averageTemperature` should work as follow:
@@ -22,8 +30,33 @@ object TemperatureExercises {
   // Step 3: Divide the total temperature by the size of dataset.
   // In case the input `ParList` is empty we return `None`.
   // Bonus: Can you calculate the size and sum in one go?
-  def averageTemperature(samples: ParList[Sample]): Option[Double] =
-    ???
+  def averageTemperature(samples: ParList[Sample]): Option[Double] = {
+    val (total, length) = sumTuples(samples.partitions.map(sumSizePerPartition))
+
+    if (length == 0) None
+    else Some(total / length)
+  }
+
+  def sumSizePerPartition(partition: List[Sample]): (Double, Int) =
+    partition.foldLeft[(Double, Int)]((0.0, 0)) {
+      case ((sum, size), sample) => (sum + sample.temperatureFahrenheit, size + 1)
+    }
+
+  def sumTuples(tuples: List[(Double, Int)]): (Double, Int) =
+    tuples.foldLeft[(Double, Int)]((0.0, 0)) {
+      case ((sum1, size1), (sum2, size2)) => (sum1 + sum2, size1 + size2)
+    }
+
+  def sumTemperature(samples: ParList[Sample]): Double =
+    samples.partitions
+      .map(partition => partition.map(_.temperatureFahrenheit).foldLeft(0.0)(_ + _))
+      .foldLeft(0.0)(_ + _)
+
+  def sumTemperature2(samples: ParList[Sample]): Double =
+    samples.partitions.map(_.map(_.temperatureFahrenheit).sum).sum
+
+  def size(samples: ParList[Sample]): Int =
+    samples.partitions.map(_.size).sum
 
   // d. Implement `foldLeft` and then move it inside the class `ParList`.
   // `foldLeft` should work as follow:
@@ -33,8 +66,11 @@ object TemperatureExercises {
   // Partition 1: List(a1, b1, c1, d1, e1, f1) ->    res1 (intermediate result of partition 1) \
   // Partition 2: List(a2, b2, c2, d2, e2, f2) ->    res2 (intermediate result of partition 2) - finalResult
   // Partition 3:                          Nil -> default (partition 3 is empty)               /
-  def foldLeft[From, To](parList: ParList[From], default: To)(combine: (To, From) => To): To =
-    ???
+  def foldLeft[From, To](parList: ParList[From], default: To)(
+    combineElements: (To, From) => To,
+    combineResults: (To, To) => To
+  ): To =
+    parList.partitions.map(_.foldLeft(default)(combineElements)).foldLeft(default)(combineResults)
 
   // e. Implement `monoFoldLeft`, a version of `foldLeft` that does not change the element type.
   // Then move `monoFoldLeft` inside  the class `ParList`.
@@ -46,7 +82,7 @@ object TemperatureExercises {
   // Partition 2: List(a2, b2, c2, d2, e2, f2) ->       y   (folded partition 2) - z (final result)
   // Partition 3:                          Nil -> default (partition 3 is empty)  /
   def monoFoldLeft[A](parList: ParList[A], default: A)(combine: (A, A) => A): A =
-    ???
+    parList.partitions.map(_.foldLeft(default)(combine)).foldLeft(default)(combine)
 
   // `summaryList` iterate 4 times over `samples`, one for each field.
   def summaryList(samples: List[Sample]): Summary =

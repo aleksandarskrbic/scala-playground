@@ -1,6 +1,6 @@
 package fp.foundations.chapter3.processing.util
 
-import scala.concurrent.duration.{Duration, _}
+import scala.concurrent.duration.{ Duration, _ }
 
 object TimeUtil {
 

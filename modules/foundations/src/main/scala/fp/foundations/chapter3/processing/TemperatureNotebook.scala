@@ -1,7 +1,7 @@
 package fp.foundations.chapter3.processing
 
 import fp.foundations.chapter3.processing.model.Sample
-import fp.foundations.chapter3.processing.util.TimeUtil.{Labelled, bench}
+import fp.foundations.chapter3.processing.util.TimeUtil.{ bench, Labelled }
 import kantan.csv._
 import kantan.csv.ops._
 
@@ -34,16 +34,26 @@ object TemperatureNotebook extends App {
   // a. Implement `samples`, a `ParList` containing all the `Samples` in `successes`.
   // Partition `parSamples` so that it contains 10 partitions of roughly equal size.
   // Note: Check `ParList` companion object
-  lazy val parSamples: ParList[Sample] =
-    ???
+  val partitionSize = math.ceil(samples.size.toDouble / 10).toInt
+  val parSamples: ParList[Sample] =
+    ParList.byPartitionSize(partitionSize, samples)
+
+  parSamples.partitions.zipWithIndex.foreach {
+    case (partition, index) =>
+      println(s"partition $index size is ${partition.size}")
+  }
 
   // b. Implement `minSampleByTemperature` in TemperatureExercises
   lazy val coldestSample: Option[Sample] =
     TemperatureExercises.minSampleByTemperature(parSamples)
 
+  println(s"The coldest sample is ${coldestSample.map(_.temperatureCelsius)}")
+
   // c. Implement `averageTemperature` in TemperatureExercises
   lazy val averageTemperature: Option[Double] =
     TemperatureExercises.averageTemperature(parSamples)
+
+  println(s"The average temperature is ${averageTemperature}")
 
   //////////////////////
   // Benchmark ParList
