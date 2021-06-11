@@ -1,6 +1,6 @@
 name := "functional-scala-playground"
 version := "0.1"
-scalaVersion := "2.13.5"
+scalaVersion := "2.13.6"
 
 val essentialEffects = project
   .in(file("modules/essential-effects"))
@@ -20,6 +20,7 @@ val dataJuggling = project
 
 val foundations = project
   .in(file("modules/foundations"))
+  .settings(scalaVersion := "2.13.3")
   .settings( scalacOptions ++= Seq(
     "-deprecation",
     "-encoding",

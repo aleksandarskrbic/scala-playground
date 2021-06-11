@@ -15,8 +15,27 @@ case class ParList[A](partitions: List[List[A]]) {
   def map[To](fn: A => To): ParList[To] =
     ParList(partitions.map(_.map(fn)))
 
-  def monoFoldLeft(param: MonoFoldParam[A]): A =
+  def foldLeft[To](default: To)(combine: (To, A) => To): To =
+    sys.error("Impossible")
+
+  def foldLeftV2[To](default: To)(combineElement: (To, A) => To)(combinePartition: (To, To) => To): To =
+    partitions
+      .map(_.foldLeft(default)(combineElement))
+      .foldLeft(default)(combinePartition)
+
+  def monoFoldLeftV1(default: A)(combine: (A, A) => A): A =
+    partitions
+      .map(_.foldLeft(default)(combine))
+      .foldLeft(default)(combine)
+
+  def monoFoldLeft(param: Monoid[A]): A =
     partitions.map(_.foldLeft(param.default)(param.combine)).foldLeft(param.default)(param.combine)
+
+  // same as map reduce
+  def foldMap[To](fn: A => To)(monoid: Monoid[To]): To =
+    partitions.map {
+      p => p.foldLeft(monoid.default)((state, value) => monoid.combine(state, fn(value)))
+    }.foldLeft(monoid.default)(monoid.combine)
 }
 
 object ParList {
