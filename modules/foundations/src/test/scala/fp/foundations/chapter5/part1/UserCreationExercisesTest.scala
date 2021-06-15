@@ -2,8 +2,8 @@ package fp.foundations.chapter5.part1
 
 import java.time.{Instant, LocalDate}
 
-import exercises.action.imperative.UserCreationExercises._
-import exercises.action.DateGenerator._
+import fp.foundations.chapter5.part1.UserCreationExercises._
+import fp.foundations.chapter5.DateGenerator._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.funsuite.AnyFunSuite

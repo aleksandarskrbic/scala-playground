@@ -1,5 +1,6 @@
 package fp.foundations.chapter5.part1
 
+import fp.foundations.chapter5.imperative.retry
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
