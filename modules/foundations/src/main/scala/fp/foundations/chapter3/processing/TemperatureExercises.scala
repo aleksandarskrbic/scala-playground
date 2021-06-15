@@ -31,7 +31,7 @@ object TemperatureExercises {
   // In case the input `ParList` is empty we return `None`.
   // Bonus: Can you calculate the size and sum in one go?
   def averageTemperature(samples: ParList[Sample]): Option[Double] = {
-    val (total, length) = sumTuples(samples.partitions.map(sumSizePerPartition))
+    val (total, length) = samples.parFoldMap(sample => (sample.temperatureFahrenheit, 1))(Monoid.sumDouble)
 
     if (length == 0) None
     else Some(total / length)
