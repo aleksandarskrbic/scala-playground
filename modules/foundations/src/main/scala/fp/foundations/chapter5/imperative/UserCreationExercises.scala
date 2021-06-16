@@ -1,4 +1,4 @@
-package fp.foundations.chapter5.part1
+package fp.foundations.chapter5.imperative
 
 import fp.foundations.chapter5.imperative._
 
@@ -73,20 +73,16 @@ object UserCreationExercises {
     user
   }
 
-  @tailrec
-  def readSubscribeToMailingListRetry(console: Console, maxAttempt: Int): Boolean = {
-    require(maxAttempt > 0, "maxAttempt must be greater than 0")
-
-    console.writeLine("Would you like to subscribe to our mailing list? [Y/N]")
-    val line = console.readLine()
-    Try(parseYesNo(line)) match {
-      case Success(value) => value
-      case Failure(error) =>
-        console.writeLine("""Incorrect format, enter "Y" for Yes or "N" for "No"""")
-        if (maxAttempt > 1) readSubscribeToMailingListRetry(console, maxAttempt - 1)
-        else throw error
+  def readSubscribeToMailingListRetry(console: Console, maxAttempt: Int): Boolean =
+    retry(maxAttempt) {
+      console.writeLine("Would you like to subscribe to our mailing list? [Y/N]")
+      val line = console.readLine()
+      onError(
+        action = parseYesNo(line),
+        cleanup = _ => console.writeLine("""Incorrect format, enter "Y" for Yes or "N" for "No"""")
+      )
     }
-  }
+
 
   // same but with a while loop instead of recursion
   def readSubscribeToMailingListRetryWhileLoop(console: Console, maxAttempt: Int): Boolean = {

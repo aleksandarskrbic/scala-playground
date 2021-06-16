@@ -1,4 +1,4 @@
-package fp.foundations.chapter5.part1
+package fp.foundations.chapter5.imperative
 
 import scala.collection.mutable.ListBuffer
 import scala.io.StdIn
