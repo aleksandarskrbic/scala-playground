@@ -1,3 +1,4 @@
+/*
 package fp.foundations.chapter3.processing
 
 import fp.foundations.chapter3.processing.model.Sample
@@ -132,3 +133,4 @@ object TemperatureNotebook extends App {
   //    (Hint: You would need to make the state thread-safe)
 
 }
+*/

@@ -1,9 +1,9 @@
 package fp.foundations.chapter5.part1
 
 import java.time.{Instant, LocalDate}
-
-import fp.foundations.chapter5.part1.UserCreationExercises._
+import fp.foundations.chapter5.part1
 import fp.foundations.chapter5.DateGenerator._
+import fp.foundations.chapter5.part1.UserCreationExercises.{User, readDateOfBirth, readDateOfBirthRetry, readSubscribeToMailingList, readSubscribeToMailingListRetry, readUser}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.funsuite.AnyFunSuite
@@ -46,22 +46,6 @@ class UserCreationExercisesTest extends AnyFunSuite with ScalaCheckDrivenPropert
     val result  = Try(readDateOfBirth(console))
 
     assert(result.isFailure)
-  }
-
-  ignore("readUser example") {
-    val inputs  = ListBuffer("Eda", "18-03-2001", "Y")
-    val outputs = ListBuffer.empty[String]
-    val console = Console.mock(inputs, outputs)
-    val result  = readUser(console)
-
-    val expected = User(
-      name = "Eda",
-      dateOfBirth = LocalDate.of(2001, 3, 18),
-      //      subscribedToMailingList = true,
-      createdAt = Instant.now()
-    )
-
-    assert(result == expected)
   }
 
   //////////////////////////////////////////////

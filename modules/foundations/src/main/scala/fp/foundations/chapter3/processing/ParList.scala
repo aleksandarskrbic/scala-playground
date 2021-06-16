@@ -1,19 +1,14 @@
 package fp.foundations.chapter3.processing
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.concurrent.{Await, ExecutionContext, Future}
 
-// For example, here is a ParList[Int] with two partitions:
-// ParList(
-//  List(1,2,3,4,5,6,7,8), // partition 1
-//  List(9,10)             // partition 2
-// )
-// Note that we used the `apply` method with a varargs argument.
-case class ParList[A](partitions: List[List[A]], ec: ExecutionContext) {
-  def toList: List[A] = partitions.flatten
+case class ParList[A](executionContext: ExecutionContext, partitions: List[List[A]]) {
+  def toList: List[A] =
+    partitions.flatten
 
-  def map[To](fn: A => To): ParList[To] =
-    copy(partitions = partitions.map(_.map(fn)))
+  def map[To](update: A => To): ParList[To] =
+    ParList(executionContext, partitions.map(_.map(update)))
 
   def foldLeft[To](default: To)(combine: (To, A) => To): To =
     sys.error("Impossible")
@@ -23,52 +18,114 @@ case class ParList[A](partitions: List[List[A]], ec: ExecutionContext) {
       .map(_.foldLeft(default)(combineElement))
       .foldLeft(default)(combinePartition)
 
+  // 1st `monoFoldLeft` implementation before introducing `Monoid`
   def monoFoldLeftV1(default: A)(combine: (A, A) => A): A =
     partitions
       .map(_.foldLeft(default)(combine))
       .foldLeft(default)(combine)
 
-  def monoFoldLeft(param: Monoid[A]): A =
-    partitions.map(_.foldLeft(param.default)(param.combine)).foldLeft(param.default)(param.combine)
+  def monoFoldLeft(monoid: Monoid[A]): A =
+    partitions
+      .map(_.foldLeft(monoid.default)(monoid.combine))
+      .foldLeft(monoid.default)(monoid.combine)
 
-  // same as map reduce
-  def foldMap[To](fn: A => To)(monoid: Monoid[To]): To =
-    partitions.map { partition =>
-      partition.foldLeft(monoid.default)((state, value) => monoid.combine(state, fn(value)))
-    }.foldLeft(monoid.default)(monoid.combine)
+  def size: Int =
+    parFoldMap(_ => 1)(CommutativeMonoid.sumNumeric)
 
-  def parFoldMap[To](fn: A => To)(monoid: Monoid[To]): To = {
-    def foldPartition(partition: List[A]): Future[To] =
+  def min(implicit ord: Ordering[A]): Option[A] =
+    minBy(identity)
+
+  def max(implicit ord: Ordering[A]): Option[A] =
+    maxBy(identity)
+
+  // 1st `minBy` implementation before `foldMap` and `reduceMap`
+  def minByV1[To](zoom: A => To)(implicit ord: Ordering[To]): Option[A] =
+    partitions.flatMap(_.minByOption(zoom)).minByOption(zoom)
+
+  // 1st `maxBy` implementation before `foldMap` and `reduceMap`
+  def maxByV1[To: Ordering](zoom: A => To)(implicit ord: Ordering[To]): Option[A] =
+    minBy(zoom)(ord.reverse)
+
+  def minBy[To: Ordering](zoom: A => To): Option[A] =
+    parReduceMap(identity)(Semigroup.minBy(zoom))
+
+  def maxBy[To: Ordering](zoom: A => To): Option[A] =
+    parReduceMap(identity)(Semigroup.maxBy(zoom))
+
+  def sum(implicit num: Numeric[A]): A =
+    fold(CommutativeMonoid.sumNumeric)
+
+  def fold(monoid: Monoid[A]): A =
+    parFoldMap(identity)(monoid)
+
+  def foldMap[To](update: A => To)(monoid: Monoid[To]): To =
+    partitions
+      .map { partition =>
+        partition.foldLeft(monoid.default)((state, element) => monoid.combine(state, update(element)))
+      }
+      .foldLeft(monoid.default)(monoid.combine)
+
+  def reducedMap[To](update: A => To)(semigroup: Semigroup[To]): Option[To] =
+    partitions.filter(_.nonEmpty) match {
+      case Nil => None
+      case nonEmptyPartitions =>
+        val reducedPartitions = nonEmptyPartitions.map(_.map(update).reduceLeft(semigroup.combine))
+        val reduceAll         = reducedPartitions.reduceLeft(semigroup.combine)
+        Some(reduceAll)
+    }
+
+  def reduce(semigroup: Semigroup[A]): Option[A] =
+    parReduceMap(identity)(semigroup)
+
+  def parFoldMap[To](update: A => To)(monoid: Monoid[To]): To =
+    parReduceMap(update)(monoid).getOrElse(monoid.default)
+
+  def parFoldMapUnordered[To](update: A => To)(monoid: CommutativeMonoid[To]): To = {
+    val ref = Ref(monoid.default)
+
+    def foldPartition(partition: List[A]): Future[Any] =
       Future {
-        partition.foldLeft(monoid.default)((state, value) => monoid.combine(state, fn(value)))
-      }(ec)
+        val res = partition.foldLeft(monoid.default)((state, value) => monoid.combine(state, update(value)))
+        ref.modify(monoid.combine(res, _))
+      }(executionContext)
+
+    partitions.map(foldPartition).foreach(Await.ready(_, Duration.Inf))
+    ref.get
+  }
+
+  def parReduceMap[To](update: A => To)(semigroup: Semigroup[To]): Option[To] = {
+    def reducePartition(partition: List[A]): Future[To] =
+      Future {
+        //        println(s"[${Thread.currentThread.getName}] Start on")
+        var state = update(partition.head)
+        for (a <- partition.tail) state = semigroup.combine(state, update(a))
+        //        println(s"[${Thread.currentThread.getName}] Computed $state")
+        state
+      }(executionContext)
 
     partitions
-      .map(foldPartition)
+      .filter(_.nonEmpty)
+      .map(reducePartition)
       .map(Await.result(_, Duration.Inf))
-      .foldLeft(monoid.default)(monoid.combine)
+      .reduceLeftOption(semigroup.combine)
   }
+
+  def withExecutionContext(ec: ExecutionContext): ParList[A] =
+    copy(executionContext = ec)
+
 }
 
 object ParList {
-  // The `*` at the end of List[A] is called a varargs. It means we can put as many arguments
-  // as we want of type List[A] and the Scala compiler will automatically packs these arguments
-  // into a collection.
-  // For example, ParList(List(1,2), List(3,4)) == ParList(List(List(1,2), List(3,4)))
-  // This is why we can create a List using the syntax List(1,2,3) instead of 1 :: 2 :: 3 :: Nil
-  def apply[A](ec: ExecutionContext, partitions: List[A]*): ParList[A] =
-    ParList(partitions.toList, ec)
+  def apply[A](executionContext: ExecutionContext, partitions: List[A]*): ParList[A] =
+    new ParList(executionContext, partitions.toList)
 
-  // Creates a ParList by grouping a List into partitions of fixed size.
-  // If the length of input list is not divisible by the partition size, then
-  // the last partition will be smaller. For example:
-  // byPartitionSize(3, List(1,2,3,4,5,6,7,8,9,10)) == ParList(
-  //   List(1,2,3),
-  //   List(4,5,6),
-  //   List(7,8,9),
-  //   List(10)
-  // )
-  def byPartitionSize[A](partitionSize: Int, items: List[A], ec: ExecutionContext): ParList[A] =
-    if (items.isEmpty) ParList(ec)
-    else ParList(items.grouped(partitionSize).toList, ec: ExecutionContext)
+  def byPartitionSize[A](executionContext: ExecutionContext, partitionSize: Int, items: List[A]): ParList[A] =
+    if (items.isEmpty) ParList(executionContext)
+    else ParList(executionContext, items.grouped(partitionSize).toList)
+
+  def byNumberOfPartition[A](executionContext: ExecutionContext, numberOfPartition: Int, items: List[A]): ParList[A] = {
+    val partitionSize = math.ceil(items.length / numberOfPartition.toDouble).toInt
+    byPartitionSize(executionContext, partitionSize, items)
+  }
+
 }
