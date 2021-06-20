@@ -53,8 +53,24 @@ object SearchFlightService {
   // Note: We can assume `clients` to contain less than 100 elements.
   def fromClients(clients: List[SearchFlightClient]): SearchFlightService =
     new SearchFlightService {
-      def search(from: Airport, to: Airport, date: LocalDate): IO[SearchResult] =
-        ???
+      def search(from: Airport, to: Airport, date: LocalDate): IO[SearchResult] = {
+        def searchByClient(client: SearchFlightClient): IO[List[Flight]] =
+          client.search(from, to, date).onError(_ => IO(Nil))
+
+        def searchAllClients(clients: List[SearchFlightClient]): IO[List[Flight]] =
+          clients match {
+            case Nil => IO(Nil)
+            case client :: otherClients =>
+              for {
+                res1 <- searchByClient(client)
+                res2 <- searchAllClients(otherClients)
+              } yield res1 ++ res2
+          }
+
+        //searchAllClients(clients).map(SearchResult(_))
+        IO.sequence(clients.map(searchByClient)).map(_.flatten).map(SearchResult(_))
+      }
+
     }
 
   // 5. Refactor `fromClients` using `sequence` or `traverse` from the `IO` companion object.
