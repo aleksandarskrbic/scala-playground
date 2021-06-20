@@ -21,10 +21,7 @@ trait IO[A] { self =>
   // prints "Fetching user", fetches user 1234 from db and returns it.
   // Note: There is a test for `andThen` in `exercises.action.fp.IOTest`.
   def andThen[Other](other: IO[Other]): IO[Other] =
-    IO {
-      self.unsafeRun()
-      other.unsafeRun()
-    }
+    flatMap(_ => other)
 
   // Popular alias for `andThen` (cat-effect, Monix, ZIO).
   // For example,
@@ -44,7 +41,7 @@ trait IO[A] { self =>
   // Note: `callback` is expected to be an FP function (total, deterministic, no action).
   //       Use `flatMap` if `callBack` is not an FP function.
   def map[Next](callBack: A => Next): IO[Next] =
-    IO(callBack(self.unsafeRun()))
+    flatMap(value => IO(callBack(value)))
 
   // Runs the current action (`this`), if it succeeds passes the result to `callback` and
   // runs the second action.
@@ -74,9 +71,26 @@ trait IO[A] { self =>
   // IO(throw new Exception("Boom!")).onError(logError).unsafeRun()
   // prints "Got an error: Boom!" and throws new Exception("Boom!")
   def onError[Other](cleanup: Throwable => IO[Other]): IO[A] =
-    ???
+    handleErrorWith(e => cleanup(e) *> IO.fail(e))
 
-  // Retries this action until either:
+  def onError2[Other](cleanup: Throwable => IO[Other]): IO[A] =
+    attempt.flatMap {
+      case Success(value) => IO(value)
+      case Failure(exception) =>
+        cleanup(exception).andThen(IO.fail(exception))
+    }
+
+  def onError3[Other](cleanup: Throwable => IO[Other]): IO[A] =
+    IO {
+      Try(unsafeRun()) match {
+        case Success(value) => value
+        case Failure(exception) =>
+          cleanup(exception).unsafeRun()
+          throw exception
+      }
+    }
+
+    // Retries this action until either:
   // * It succeeds.
   // * Or the number of attempts have been exhausted.
   // For example,
@@ -91,7 +105,30 @@ trait IO[A] { self =>
   // Note: `maxAttempt` must be greater than 0, otherwise the `IO` should fail.
   // Note: `retry` is a no-operation when `maxAttempt` is equal to 1.
   def retry(maxAttempt: Int): IO[A] =
-    ???
+    if (maxAttempt <=0) IO.fail(new IllegalArgumentException("maxAttempt must be greater than 0"))
+    else if (maxAttempt == 1) self // end recursion
+    else handleErrorWith(_ => retry(maxAttempt - 1))
+
+  def retry2(maxAttempt: Int): IO[A] =
+    if (maxAttempt <=0) IO.fail(new IllegalArgumentException("maxAttempt must be greater than 0"))
+    else if (maxAttempt == 1) self
+    else {
+      attempt.flatMap {
+        case Success(value) => IO(value)
+        case Failure(_) => retry2(maxAttempt - 1)
+      }
+    }
+
+  def retry3(maxAttempt: Int): IO[A] =
+    IO {
+      require(maxAttempt > 0, "maxAttempt must be greater than 0")
+      Try(unsafeRun()) match {
+        case Success(value) => value
+        case Failure(exception) =>
+          if (maxAttempt == 1) throw exception
+          else retry3(maxAttempt - 1).unsafeRun()
+      }
+    }
 
   // Checks if the current IO is a failure or a success.
   // For example,
@@ -101,7 +138,7 @@ trait IO[A] { self =>
   // 1. Success(User(1234, "Bob", ...)) if `action` was successful or
   // 2. Failure(new Exception("User 1234 not found")) if `action` throws an exception
   def attempt: IO[Try[A]] =
-    ???
+    IO { Try(unsafeRun()) }
 
   // If the current IO is a success, do nothing.
   // If the current IO is a failure, execute `callback` and keep its result.
@@ -111,7 +148,10 @@ trait IO[A] { self =>
   //   logError(e).andThen(emailClient.send(user.email, "Sorry something went wrong"))
   // )
   def handleErrorWith(callback: Throwable => IO[A]): IO[A] =
-    ???
+    attempt.flatMap {
+      case Success(value) => IO(value)
+      case Failure(exception) => callback(exception)
+    }
 
   //////////////////////////////////////////////
   // Concurrent IO

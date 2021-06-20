@@ -101,9 +101,8 @@ class UserCreationServiceTest extends AnyFunSuite with ScalaCheckDrivenPropertyC
       assert(result.isFailure)
       assert(
         outputs.toList == List(
-          "Would you like to subscribe to our mailing list? [Y/N]"
-          // Uncomment after adding `onError` to `readSubscribeToMailingList`
-          // """Incorrect format, enter "Y" for Yes or "N" for "No"""",
+          "Would you like to subscribe to our mailing list? [Y/N]",
+          """Incorrect format, enter "Y" for Yes or "N" for "No"""",
         )
       )
     }
@@ -129,7 +128,7 @@ class UserCreationServiceTest extends AnyFunSuite with ScalaCheckDrivenPropertyC
     }
   }
 
-  ignore("readUser with retry") {
+  test("readUser with retry") {
     forAll(
       arbitrary[String],
       Gen.listOf(invalidDateGen),
