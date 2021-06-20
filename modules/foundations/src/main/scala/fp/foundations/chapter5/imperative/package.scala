@@ -1,7 +1,7 @@
 package fp.foundations.chapter5
 
 import scala.annotation.tailrec
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 package object imperative {
 
@@ -26,16 +26,15 @@ package object imperative {
   // Note: `maxAttempt` must be greater than 0, if not you should throw an exception.
   // Note: Tests are in the `exercises.action.imperative.ImperativeActionTest`
   @tailrec
-  def retry[A](maxAttempt: Int)(action: => A): A = {
+  def retry[A](maxAttempt: Int)(action: => A): A =
     if (maxAttempt <= 0) throw new IllegalArgumentException("maxAttempt must be greater than 0")
     else if (maxAttempt == 1) action
     else
       Try(action) match {
         case Success(value) => value
-        case Failure(_)     =>
+        case Failure(_) =>
           retry(maxAttempt - 1)(action)
       }
-  }
 
   // 2. Refactor `readSubscribeToMailingListRetry` in `UserCreationExercises` using `retry`.
 

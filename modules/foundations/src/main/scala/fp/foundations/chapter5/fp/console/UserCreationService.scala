@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter
 
 import fp.foundations.chapter5.fp.IO
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 // Run the App using the green arrow next to object (if using IntelliJ)
 // or run `sbt` in the terminal to open it in shell mode then type:
@@ -40,34 +40,30 @@ class UserCreationService(console: Console, clock: Clock) {
   // If it doesn't work investigate the methods `map` and `flatMap` on the `IO` trait.
   val readDateOfBirth: IO[LocalDate] =
     for {
-      _ <- writeLine("What's your date of birth? [dd-mm-yyyy]")
+      _    <- writeLine("What's your date of birth? [dd-mm-yyyy]")
       line <- readLine
-      date <- parseDateOfBirth(line).onError { e =>
-        writeLine("error")
-      }
+      date <- parseDateOfBirth(line).onError(e => writeLine("error"))
     } yield date
 
   // 3. Refactor `readSubscribeToMailingList` and `readUser` using the same techniques as `readDateOfBirth`.
   val readSubscribeToMailingList: IO[Boolean] =
     for {
-       _    <- writeLine("Would you like to subscribe to our mailing list? [Y/N]")
+      _     <- writeLine("Would you like to subscribe to our mailing list? [Y/N]")
       line  <- readLine
       yesNo <- parseLineToBoolean(line)
     } yield yesNo
 
   val readUser: IO[User] =
     for {
-       name        <- readName
-       dateOfBirth <- readDateOfBirth.retry(3)
-       subscribed  <- readSubscribeToMailingList.retry(3)
-       now         <- clock.now
+      name        <- readName
+      dateOfBirth <- readDateOfBirth.retry(3)
+      subscribed  <- readSubscribeToMailingList.retry(3)
+      now         <- clock.now
 
-       user        = User(name, dateOfBirth, subscribed, now)
+      user = User(name, dateOfBirth, subscribed, now)
 
-       _ <- console.writeLine(s"User is $user")
+      _ <- console.writeLine(s"User is $user")
     } yield user
-
-
   //////////////////////////////////////////////
   // PART 2: For Comprehension
   //////////////////////////////////////////////

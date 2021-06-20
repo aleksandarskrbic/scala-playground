@@ -1,7 +1,7 @@
 package fp.foundations.chapter3.processing
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.reflect.ClassTag
 
 case class ParArray[A](executionContext: ExecutionContext, underlying: Array[A], partitionSize: Int) {
@@ -22,7 +22,7 @@ case class ParArray[A](executionContext: ExecutionContext, underlying: Array[A],
       while (index < underlying.length) {
         val startIndex = index
         val nextIndex  = (index + partitionSize) min underlying.length
-        val task       = Future { _reduceMap(startIndex, nextIndex)(update)(semigroup) }(executionContext)
+        val task       = Future(_reduceMap(startIndex, nextIndex)(update)(semigroup))(executionContext)
         state = task :: state
         index = nextIndex
       }

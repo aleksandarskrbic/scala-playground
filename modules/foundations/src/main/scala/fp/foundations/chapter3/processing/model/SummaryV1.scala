@@ -1,6 +1,6 @@
 package fp.foundations.chapter3.processing.model
 
-import fp.foundations.chapter3.processing.{CommutativeMonoid, Monoid}
+import fp.foundations.chapter3.processing.{ CommutativeMonoid, Monoid }
 
 case class SummaryV1(min: Option[Sample], max: Option[Sample], sum: Double, size: Int) {
   def average: Option[Double] =
@@ -19,7 +19,7 @@ object SummaryV1 {
       min = Some(sample),
       max = Some(sample),
       sum = sample.temperatureFahrenheit,
-      size = 1,
+      size = 1
     )
 
   def fromSummary(opt: Option[Summary]): SummaryV1 =
@@ -30,7 +30,7 @@ object SummaryV1 {
       min = None,
       max = None,
       sum = 0,
-      size = 0,
+      size = 0
     )
 
     def combine(first: SummaryV1, second: SummaryV1): SummaryV1 =
@@ -48,7 +48,7 @@ object SummaryV1 {
           case (Some(x), Some(y)) => Some(if (x.temperatureFahrenheit >= y.temperatureFahrenheit) x else y)
         },
         sum = first.sum + second.sum,
-        size = first.size + second.size,
+        size = first.size + second.size
       )
   }
 
@@ -62,7 +62,7 @@ object SummaryV1 {
       min = monoidMin.default,
       max = monoidMax.default,
       sum = monoidSumDouble.default,
-      size = monoidSumInt.default,
+      size = monoidSumInt.default
     )
 
     def combine(first: SummaryV1, second: SummaryV1): SummaryV1 =
@@ -70,7 +70,7 @@ object SummaryV1 {
         min = monoidMin.combine(first.min, second.min),
         max = monoidMax.combine(first.max, second.max),
         sum = monoidSumDouble.combine(first.sum, second.sum),
-        size = monoidSumInt.combine(first.size, second.size),
+        size = monoidSumInt.combine(first.size, second.size)
       )
   }
 }

@@ -25,7 +25,7 @@ object ParMapNErrors extends IOApp {
       e3.attempt.debug *>
       IO.pure(ExitCode.Success)
 
-  private val ok = IO("hi").debug
+  private val ok   = IO("hi").debug
   private val err1 = IO.raiseError[String](new RuntimeException("Error 1!")).debug
   private val err2 = IO.raiseError[String](new RuntimeException("Error 2!")).debug
 
@@ -41,9 +41,8 @@ object ParTraverse extends IOApp {
       .debug
       .as(ExitCode.Success)
 
-  val numTasks = 100
+  val numTasks         = 100
   val tasks: List[Int] = List.range(0, numTasks)
 
   def task(id: Int): IO[Int] = IO(id).debug
 }
-

@@ -53,9 +53,9 @@ object Monoid {
       def combine(optFirst: Option[A], optSecond: Option[A]): Option[A] =
         (optFirst, optSecond) match {
           case (Some(first), Some(second)) => Some(semigroup.combine(first, second))
-          case (Some(first), None) => Some(first)
-          case (None, Some(second)) => Some(second)
-          case (None, None) => None
+          case (Some(first), None)         => Some(first)
+          case (None, Some(second))        => Some(second)
+          case (None, None)                => None
         }
     }
 
@@ -67,7 +67,7 @@ object Monoid {
         second.foldLeft(first) {
           case (acc, (key, value)) =>
             acc.updatedWith(key) {
-              case None => Some(value)
+              case None                => Some(value)
               case Some(existingValue) => Some(semigroup.combine(existingValue, value))
             }
         }

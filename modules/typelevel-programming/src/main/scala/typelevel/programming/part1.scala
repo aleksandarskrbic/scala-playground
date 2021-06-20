@@ -13,7 +13,7 @@ object part1 {
   // represents natural number as TYPE
   // peano arithmetic
   trait Natural
-  class _0 extends Natural
+  class _0                      extends Natural
   class Successor[N <: Natural] extends Natural
 
   type _1 = Successor[_0]
@@ -39,13 +39,12 @@ object part1 {
   }
 
   val comparison1: <[_0, _1] = <[_0, _1]
-  val comparison2: _0 < _1 = <[_0, _1]
+  val comparison2: _0 < _1   = <[_0, _1]
   // val comparison3: <[_1, _2] = <[_1, _2] -> Can't compile no implicit found!
 
   // after implementing inductive
   val comparison3: <[_1, _2] = <[_1, _2]
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
     println(show(List(1, 2, 3)))
-  }
 }

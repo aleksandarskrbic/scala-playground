@@ -1,7 +1,7 @@
 package fp.foundations.chapter3.processing
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContext, Future }
 
 case class ParList[A](executionContext: ExecutionContext, partitions: List[List[A]]) {
   def toList: List[A] =
@@ -59,11 +59,9 @@ case class ParList[A](executionContext: ExecutionContext, partitions: List[List[
     parFoldMap(identity)(monoid)
 
   def foldMap[To](update: A => To)(monoid: Monoid[To]): To =
-    partitions
-      .map { partition =>
-        partition.foldLeft(monoid.default)((state, element) => monoid.combine(state, update(element)))
-      }
-      .foldLeft(monoid.default)(monoid.combine)
+    partitions.map { partition =>
+      partition.foldLeft(monoid.default)((state, element) => monoid.combine(state, update(element)))
+    }.foldLeft(monoid.default)(monoid.combine)
 
   def reducedMap[To](update: A => To)(semigroup: Semigroup[To]): Option[To] =
     partitions.filter(_.nonEmpty) match {

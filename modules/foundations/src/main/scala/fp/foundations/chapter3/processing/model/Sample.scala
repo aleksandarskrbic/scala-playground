@@ -5,15 +5,15 @@ import java.time.LocalDate
 import kantan.csv.RowDecoder
 
 case class Sample(
-                   region: String, // e.g. Africa, Asia, Australia/South Pacific, Europe, Middle East, North America
-                   country: String, // e.g. Algeria, Burundi, Benin, Central African Republic, Congo
-                   state: Option[String], // U.S. specific e.g. Alabama, Alaska, Arizona
-                   city: String, // e.g. Algiers, Bujumbura, Cotonou, Bangui, Brazzaville
-                   month: Int,
-                   day: Int,
-                   year: Int,
-                   temperatureFahrenheit: Double
-                 ) {
+  region: String,        // e.g. Africa, Asia, Australia/South Pacific, Europe, Middle East, North America
+  country: String,       // e.g. Algeria, Burundi, Benin, Central African Republic, Congo
+  state: Option[String], // U.S. specific e.g. Alabama, Alaska, Arizona
+  city: String,          // e.g. Algiers, Bujumbura, Cotonou, Bangui, Brazzaville
+  month: Int,
+  day: Int,
+  year: Int,
+  temperatureFahrenheit: Double
+) {
   val temperatureCelsius: Double =
     (temperatureFahrenheit - 32) * 5 / 9
 

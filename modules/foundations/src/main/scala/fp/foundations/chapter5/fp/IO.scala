@@ -2,9 +2,9 @@ package fp.foundations.chapter5.fp
 
 import java.util.concurrent.CountDownLatch
 import scala.annotation.tailrec
-import scala.concurrent.duration.{Duration, FiniteDuration}
-import scala.concurrent.{Await, ExecutionContext, Future, Promise}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.duration.{ Duration, FiniteDuration }
+import scala.concurrent.{ Await, ExecutionContext, Future, Promise }
+import scala.util.{ Failure, Success, Try }
 
 trait IO[A] { self =>
 
@@ -54,7 +54,7 @@ trait IO[A] { self =>
   // address found in the database.
   def flatMap[Next](callback: A => IO[Next]): IO[Next] =
     IO {
-      val a: A = self.unsafeRun()
+      val a: A           = self.unsafeRun()
       val next: IO[Next] = callback(a)
       next.unsafeRun()
     }
@@ -90,7 +90,7 @@ trait IO[A] { self =>
       }
     }
 
-    // Retries this action until either:
+  // Retries this action until either:
   // * It succeeds.
   // * Or the number of attempts have been exhausted.
   // For example,
@@ -105,17 +105,17 @@ trait IO[A] { self =>
   // Note: `maxAttempt` must be greater than 0, otherwise the `IO` should fail.
   // Note: `retry` is a no-operation when `maxAttempt` is equal to 1.
   def retry(maxAttempt: Int): IO[A] =
-    if (maxAttempt <=0) IO.fail(new IllegalArgumentException("maxAttempt must be greater than 0"))
+    if (maxAttempt <= 0) IO.fail(new IllegalArgumentException("maxAttempt must be greater than 0"))
     else if (maxAttempt == 1) self // end recursion
     else handleErrorWith(_ => retry(maxAttempt - 1))
 
   def retry2(maxAttempt: Int): IO[A] =
-    if (maxAttempt <=0) IO.fail(new IllegalArgumentException("maxAttempt must be greater than 0"))
+    if (maxAttempt <= 0) IO.fail(new IllegalArgumentException("maxAttempt must be greater than 0"))
     else if (maxAttempt == 1) self
     else {
       attempt.flatMap {
         case Success(value) => IO(value)
-        case Failure(_) => retry2(maxAttempt - 1)
+        case Failure(_)     => retry2(maxAttempt - 1)
       }
     }
 
@@ -138,7 +138,7 @@ trait IO[A] { self =>
   // 1. Success(User(1234, "Bob", ...)) if `action` was successful or
   // 2. Failure(new Exception("User 1234 not found")) if `action` throws an exception
   def attempt: IO[Try[A]] =
-    IO { Try(unsafeRun()) }
+    IO(Try(unsafeRun()))
 
   // If the current IO is a success, do nothing.
   // If the current IO is a failure, execute `callback` and keep its result.
@@ -149,7 +149,7 @@ trait IO[A] { self =>
   // )
   def handleErrorWith(callback: Throwable => IO[A]): IO[A] =
     attempt.flatMap {
-      case Success(value) => IO(value)
+      case Success(value)     => IO(value)
       case Failure(exception) => callback(exception)
     }
 

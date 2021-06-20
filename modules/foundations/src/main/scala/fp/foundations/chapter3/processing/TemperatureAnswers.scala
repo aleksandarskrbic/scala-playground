@@ -1,6 +1,6 @@
 package fp.foundations.chapter3.processing
 
-import fp.foundations.chapter3.processing.model.{Sample, Summary, SummaryV1}
+import fp.foundations.chapter3.processing.model.{ Sample, Summary, SummaryV1 }
 
 object TemperatureAnswers {
 
@@ -27,12 +27,11 @@ object TemperatureAnswers {
 
   def averageTemperatureV2(samples: ParList[Sample]): Option[Double] = {
     val (length, sum) = samples.partitions
-      .map(
-        partition =>
-          partition.foldLeft((0, 0.0)) {
-            case ((size, total), sample) =>
-              (size + 1, total + sample.temperatureFahrenheit)
-          }
+      .map(partition =>
+        partition.foldLeft((0, 0.0)) {
+          case ((size, total), sample) =>
+            (size + 1, total + sample.temperatureFahrenheit)
+        }
       )
       .foldLeft((0, 0.0)) {
         case ((size1, total1), (size2, total2)) =>
@@ -57,22 +56,19 @@ object TemperatureAnswers {
         sum = 0.0,
         size = 0
       )
-    )(
-      (state, sample) =>
-        SummaryV1(
-          min = state.min.fold(Some(sample))(
-            current =>
-              if (current.temperatureFahrenheit <= sample.temperatureFahrenheit) Some(current)
-              else Some(sample)
-          ),
-          max = state.max.fold(Some(sample))(
-            current =>
-              if (current.temperatureFahrenheit >= sample.temperatureFahrenheit) Some(current)
-              else Some(sample)
-          ),
-          sum = state.sum + sample.temperatureFahrenheit,
-          size = state.size + 1
-        )
+    )((state, sample) =>
+      SummaryV1(
+        min = state.min.fold(Some(sample))(current =>
+          if (current.temperatureFahrenheit <= sample.temperatureFahrenheit) Some(current)
+          else Some(sample)
+        ),
+        max = state.max.fold(Some(sample))(current =>
+          if (current.temperatureFahrenheit >= sample.temperatureFahrenheit) Some(current)
+          else Some(sample)
+        ),
+        sum = state.sum + sample.temperatureFahrenheit,
+        size = state.size + 1
+      )
     )
 
   def summaryParList(samples: ParList[Sample]): SummaryV1 =

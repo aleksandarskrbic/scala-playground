@@ -1,10 +1,10 @@
 package fp.foundations.chapter5.imperative
 
-import fp.foundations.chapter5.imperative.{onError, retry}
+import fp.foundations.chapter5.imperative.{ onError, retry }
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 // Run the test using the green arrow next to class name (if using IntelliJ)
 // or run `sbt` in the terminal to open it in shell mode, then type:
@@ -41,7 +41,7 @@ class ImperativeActionTest extends AnyFunSuite with ScalaCheckDrivenPropertyChec
   }
 
   test("onError failure") {
-    var counter = 0
+    var counter   = 0
     val exception = new Exception("boom")
 
     val result = Try(
@@ -70,4 +70,3 @@ class ImperativeActionTest extends AnyFunSuite with ScalaCheckDrivenPropertyChec
   }
 
 }
-

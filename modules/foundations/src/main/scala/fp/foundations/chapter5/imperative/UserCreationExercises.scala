@@ -3,10 +3,10 @@ package fp.foundations.chapter5.imperative
 import fp.foundations.chapter5.imperative._
 
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, LocalDate}
+import java.time.{ Instant, LocalDate }
 import scala.annotation.tailrec
 import scala.io.StdIn
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 // Run the App using the green arrow next to object (if using IntelliJ)
 // or run `sbt` in the terminal to open it in shell mode, then type:
@@ -23,7 +23,7 @@ object UserCreationExercises {
   // will show incorrectly.
   // https://stackoverflow.com/a/41178418
   val dateOfBirthFormatter: DateTimeFormatter =
-  DateTimeFormatter.ofPattern("dd-MM-uuuu")
+    DateTimeFormatter.ofPattern("dd-MM-uuuu")
 
   case class User(name: String, dateOfBirth: LocalDate, subscribed: Boolean, createdAt: Instant)
 
@@ -82,7 +82,6 @@ object UserCreationExercises {
         cleanup = _ => console.writeLine("""Incorrect format, enter "Y" for Yes or "N" for "No"""")
       )
     }
-
 
   // same but with a while loop instead of recursion
   def readSubscribeToMailingListRetryWhileLoop(console: Console, maxAttempt: Int): Boolean = {

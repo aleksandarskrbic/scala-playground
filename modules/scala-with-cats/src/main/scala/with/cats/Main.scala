@@ -1,5 +1,3 @@
 package `with`.cats
 
-object Main {
-
-}
+object Main {}

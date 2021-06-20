@@ -13,10 +13,10 @@ trait Console {
 object Console {
   val system: Console = new Console {
     val readLine: IO[String] =
-      IO { StdIn.readLine() }
+      IO(StdIn.readLine())
 
     def writeLine(message: String): IO[Unit] =
-      IO { println(message) }
+      IO(println(message))
   }
 
   def mock(inputs: ListBuffer[String], outputs: ListBuffer[String]): Console = new Console {

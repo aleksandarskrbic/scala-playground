@@ -1,8 +1,8 @@
 package fp.foundations.chapter5
 
-import java.time.{Instant, LocalDate}
+import java.time.{ Instant, LocalDate }
 
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.{ Arbitrary, Gen }
 
 object DateGenerator {
   val dateGen: Gen[LocalDate] =

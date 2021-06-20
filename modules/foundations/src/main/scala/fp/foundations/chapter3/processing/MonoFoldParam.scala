@@ -13,7 +13,7 @@ trait MonoFoldParam[A] {
 
 object MonoFoldParam {
   val sumInt: MonoFoldParam[Int] = new MonoFoldParam[Int] {
-    override def default: Int = 0
+    override def default: Int                          = 0
     override def combine(first: Int, second: Int): Int = first + second
   }
 }

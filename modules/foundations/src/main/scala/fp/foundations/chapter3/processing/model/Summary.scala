@@ -1,6 +1,6 @@
 package fp.foundations.chapter3.processing.model
 
-import fp.foundations.chapter3.processing.{CommutativeMonoid, Semigroup}
+import fp.foundations.chapter3.processing.{ CommutativeMonoid, Semigroup }
 
 case class Summary(min: Sample, max: Sample, sum: Double, size: Int) {
   require(size > 0)
@@ -20,7 +20,7 @@ object Summary {
       min = sample,
       max = sample,
       sum = sample.temperatureFahrenheit,
-      size = 1,
+      size = 1
     )
 
   val semigroup: Semigroup[Summary] = new Semigroup[Summary] {
@@ -34,7 +34,7 @@ object Summary {
         min = if (first.min.temperatureFahrenheit <= second.min.temperatureFahrenheit) first.min else second.min,
         max = if (first.max.temperatureFahrenheit >= second.max.temperatureFahrenheit) first.max else second.max,
         sum = first.sum + second.sum,
-        size = first.size + second.size,
+        size = first.size + second.size
       )
   }
 
@@ -49,8 +49,7 @@ object Summary {
         min = semigroupMin.combine(first.min, second.min),
         max = semigroupMax.combine(first.max, second.max),
         sum = monoidSumDouble.combine(first.sum, second.sum),
-        size = monoidSumInt.combine(first.size, second.size),
+        size = monoidSumInt.combine(first.size, second.size)
       )
   }
 }
-

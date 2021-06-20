@@ -1,10 +1,10 @@
 package fp.foundations.chapter3.processing
 
-import fp.foundations.chapter3.processing.model.{Sample, Summary, SummaryV1}
+import fp.foundations.chapter3.processing.model.{ Sample, Summary, SummaryV1 }
 import fp.foundations.chapter3.processing.util.ThreadPoolUtil
-import fp.foundations.chapter3.processing.util.TimeUtil.{Labelled, bench, timeOne}
+import fp.foundations.chapter3.processing.util.TimeUtil.{ bench, timeOne, Labelled }
 import kantan.csv.ops.toCsvInputOps
-import kantan.csv.{CsvReader, ReadError, rfc}
+import kantan.csv.{ rfc, CsvReader, ReadError }
 
 object TemperatureExercises {
   val rawData: java.net.URL = getClass.getResource("/city_temperature.csv")

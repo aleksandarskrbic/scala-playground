@@ -1,7 +1,6 @@
 package fp.foundations.chapter5.fp.console
 
-
-import java.time.{Instant, LocalDate}
+import java.time.{ Instant, LocalDate }
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
@@ -12,7 +11,7 @@ import org.scalacheck.Gen
 import fp.foundations.chapter5.DateGenerator._
 import fp.foundations.chapter5.fp.console.UserCreationService._
 
-import scala.util.{Success, Try}
+import scala.util.{ Success, Try }
 
 // Run the test using the green arrow next to class name (if using IntelliJ)
 // or run `sbt` in the terminal to open it in shell mode, then type:
@@ -102,7 +101,7 @@ class UserCreationServiceTest extends AnyFunSuite with ScalaCheckDrivenPropertyC
       assert(
         outputs.toList == List(
           "Would you like to subscribe to our mailing list? [Y/N]",
-          """Incorrect format, enter "Y" for Yes or "N" for "No"""",
+          """Incorrect format, enter "Y" for Yes or "N" for "No""""
         )
       )
     }

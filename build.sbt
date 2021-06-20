@@ -21,24 +21,28 @@ val dataJuggling = project
 val foundations = project
   .in(file("modules/foundations"))
   .settings(scalaVersion := "2.13.3")
-  .settings( scalacOptions ++= Seq(
-    "-deprecation",
-    "-encoding",
-    "UTF-8",
-    "-feature",
-    "-language:higherKinds",
-    "-language:implicitConversions",
-    "-language:existentials",
-    "-language:postfixOps",
-    "-unchecked",
-    "-Ywarn-value-discard",     // uncomment to transform type erasure warnings into errors
-  ))
   .settings(
-    addCompilerPlugin("org.typelevel" %% "kind-projector"  % "0.10.3" cross CrossVersion.binary)
+    scalacOptions ++= Seq(
+      "-deprecation",
+      "-encoding",
+      "UTF-8",
+      "-feature",
+      "-language:higherKinds",
+      "-language:implicitConversions",
+      "-language:existentials",
+      "-language:postfixOps",
+      "-unchecked",
+      "-Ywarn-value-discard" // uncomment to transform type erasure warnings into errors
+    )
   )
-  .settings(libraryDependencies ++= Seq(
-    "com.nrinaudo" %% "kantan.csv" % "0.6.1",
-    "org.scalatestplus" %% "scalacheck-1-14" % "3.1.2.0" % Test
-  ))
+  .settings(
+    addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3" cross CrossVersion.binary)
+  )
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.nrinaudo"      %% "kantan.csv"      % "0.6.1",
+      "org.scalatestplus" %% "scalacheck-1-14" % "3.1.2.0" % Test
+    )
+  )
 
 addCommandAlias("fmt", "all scalafmtSbt scalafmtAll")

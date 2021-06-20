@@ -1,16 +1,23 @@
 package fp.foundations.chapter5.imperative
 
-import java.time.{Instant, LocalDate}
+import java.time.{ Instant, LocalDate }
 import fp.foundations.chapter5.imperative
 import fp.foundations.chapter5.DateGenerator._
-import fp.foundations.chapter5.imperative.UserCreationExercises.{User, readDateOfBirth, readDateOfBirthRetry, readSubscribeToMailingList, readSubscribeToMailingListRetry, readUser}
+import fp.foundations.chapter5.imperative.UserCreationExercises.{
+  readDateOfBirth,
+  readDateOfBirthRetry,
+  readSubscribeToMailingList,
+  readSubscribeToMailingListRetry,
+  readUser,
+  User
+}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 import scala.collection.mutable.ListBuffer
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 // Run the test using the green arrow next to class name (if using IntelliJ)
 // or run `sbt` in the terminal to open it in shell mode, then type:

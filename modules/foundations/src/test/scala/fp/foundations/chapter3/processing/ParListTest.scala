@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import TemperatureExercises._
 import fp.foundations.chapter3.processing.TemperatureAnswers.minSampleByTemperature
-import fp.foundations.chapter3.processing.model.{Sample, SummaryV1}
+import fp.foundations.chapter3.processing.model.{ Sample, SummaryV1 }
 import org.scalacheck.Gen
 
 import scala.Ordering.Double.TotalOrdering
@@ -22,7 +22,7 @@ class ParListTest extends AnyFunSuite with ScalaCheckDrivenPropertyChecks with P
       Sample("Africa", "Algeria", None, "Algiers", 8, 1, 2020, 89.7),
       Sample("Africa", "Algeria", None, "Algiers", 8, 1, 2020, 22.1),
       Sample("Africa", "Algeria", None, "Algiers", 8, 1, 2020, 34.7),
-      Sample("Africa", "Algeria", None, "Algiers", 8, 1, 2020, 99.0),
+      Sample("Africa", "Algeria", None, "Algiers", 8, 1, 2020, 99.0)
     )
     val parSamples = ParList.byPartitionSize(global, 3, samples)
 
@@ -42,15 +42,11 @@ class ParListTest extends AnyFunSuite with ScalaCheckDrivenPropertyChecks with P
   }
 
   test("min with List minOption") {
-    forAll { (numbers: ParList[Int]) =>
-      assert(numbers.min == numbers.toList.minOption)
-    }
+    forAll((numbers: ParList[Int]) => assert(numbers.min == numbers.toList.minOption))
   }
 
   test("size") {
-    forAll { (numbers: ParList[Int]) =>
-      assert(numbers.size == numbers.toList.size)
-    }
+    forAll((numbers: ParList[Int]) => assert(numbers.size == numbers.toList.size))
   }
 
   test("averageTemperature: min <= avg <= max ") {
@@ -84,9 +80,7 @@ class ParListTest extends AnyFunSuite with ScalaCheckDrivenPropertyChecks with P
   }
 
   test("monoFoldLeft consistent with List sum") {
-    forAll { (numbers: ParList[Int]) =>
-      assert(numbers.monoFoldLeftV1(0)(_ + _) == numbers.toList.sum)
-    }
+    forAll((numbers: ParList[Int]) => assert(numbers.monoFoldLeftV1(0)(_ + _) == numbers.toList.sum))
   }
 
   ignore("monoFoldLeft consistent with List foldLeft (not true)") {
@@ -133,7 +127,7 @@ class ParListTest extends AnyFunSuite with ScalaCheckDrivenPropertyChecks with P
         TemperatureAnswers.summaryListOnePass(samples.toList),
         TemperatureAnswers.summaryParList(samples),
         TemperatureAnswers.summaryParListOnePassFoldMap(samples),
-        TemperatureAnswers.summaryParListOnePassReduceMap(samples),
+        TemperatureAnswers.summaryParListOnePassReduceMap(samples)
       ).foreach { other =>
         assert(reference.size == other.size)
         assert(reference.sum == other.sum)

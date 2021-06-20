@@ -1,5 +1,3 @@
 package data.juggling
 
-object Main {
-
-}
+object Main {}
