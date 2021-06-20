@@ -210,15 +210,15 @@ object IO {
       for {
         res1 <- state
         res2 <- action
-      } yield res2 :: res1
-    }.map(_.reverse)
+      } yield res2 :: res1 // add to the end of the list which is not expensive
+    }.map(_.reverse) // reverse list to get correct result
 
   def sequenceNonOptimal[A](actions: List[IO[A]]): IO[List[A]] =
     actions.foldLeft(IO(List.empty[A])) { (state, action) =>
       for {
         res1 <- state
         res2 <- action
-      } yield res1 :+ res2
+      } yield res1 :+ res2 // prepend, this is expensive
     }
 
   def sequenceNotTailRec[A](actions: List[IO[A]]): IO[List[A]] =

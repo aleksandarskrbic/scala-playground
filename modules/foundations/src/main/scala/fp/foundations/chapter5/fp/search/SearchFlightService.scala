@@ -14,6 +14,27 @@ trait SearchFlightService {
 
 object SearchFlightService {
 
+  def fromTwoClients(client1: SearchFlightClient, client2: SearchFlightClient): SearchFlightService =
+    fromClients(List(client1, client2))
+
+  def fromClients(clients: List[SearchFlightClient]): SearchFlightService =
+    new SearchFlightService {
+      def search(from: Airport, to: Airport, date: LocalDate): IO[SearchResult] = {
+        def fetchFlights(client: SearchFlightClient): IO[List[Flight]] =
+          client
+            .search(from, to, date)
+            .handleErrorWith(_ => IO(Nil))
+            .map(_.filter { flight =>
+              flight.from == from && flight.to == to && flight.departureDate == date
+            })
+
+        clients
+          .traverse(fetchFlights)
+          .map(_.flatten)
+          .map(SearchResult.apply)
+      }
+    }
+
   // 1. Implement `fromTwoClients` which creates a `SearchFlightService` by
   // combining the results from two `SearchFlightClient`.
   // For example, imagine we fetch flight data from Swissair and lastminute.com.
@@ -22,7 +43,7 @@ object SearchFlightService {
   // (see `SearchResult` companion object).
   // Note: A example based test is defined in `SearchFlightServiceTest`.
   //       You can also defined tests for `SearchResult` in `SearchResultTest`
-  def fromTwoClients(client1: SearchFlightClient, client2: SearchFlightClient): SearchFlightService =
+  def fromTwoClientsTest(client1: SearchFlightClient, client2: SearchFlightClient): SearchFlightService =
     new SearchFlightService {
       def search(from: Airport, to: Airport, date: LocalDate): IO[SearchResult] = {
         def searchByClient(client: SearchFlightClient): IO[List[Flight]] =
@@ -51,7 +72,7 @@ object SearchFlightService {
   // a list of `SearchFlightClient`.
   // Note: You can use a recursion/loop/foldLeft to call all the clients and combine their results.
   // Note: We can assume `clients` to contain less than 100 elements.
-  def fromClients(clients: List[SearchFlightClient]): SearchFlightService =
+  def fromClientsTest(clients: List[SearchFlightClient]): SearchFlightService =
     new SearchFlightService {
       def search(from: Airport, to: Airport, date: LocalDate): IO[SearchResult] = {
         def searchByClient(client: SearchFlightClient): IO[List[Flight]] =
@@ -68,7 +89,9 @@ object SearchFlightService {
           }
 
         //searchAllClients(clients).map(SearchResult(_))
-        IO.sequence(clients.map(searchByClient)).map(_.flatten).map(SearchResult(_))
+        // map + sequence = traverse
+        // IO.sequence(clients.map(searchByClient)).map(_.flatten).map(SearchResult(_))
+        clients.traverse(searchByClient).map(_.flatten).map(SearchResult(_))
       }
 
     }
