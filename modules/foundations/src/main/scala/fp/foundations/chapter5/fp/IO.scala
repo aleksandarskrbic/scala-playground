@@ -206,6 +206,14 @@ object IO {
   // If no error occurs, it returns the users in the same order:
   // List(User(1111, ...), User(2222, ...), User(3333, ...))
   def sequence[A](actions: List[IO[A]]): IO[List[A]] =
+    actions.foldLeft(IO(List.empty[A])) { (state, action) =>
+      for {
+        res1 <- state
+        res2 <- action
+      } yield res1 :+ res2
+    }
+
+  def sequenceNotTailRec[A](actions: List[IO[A]]): IO[List[A]] =
     actions match {
       case Nil => IO(Nil)
       case head :: next =>
