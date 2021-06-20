@@ -210,6 +210,14 @@ object IO {
       for {
         res1 <- state
         res2 <- action
+      } yield res2 :: res1
+    }.map(_.reverse)
+
+  def sequenceNonOptimal[A](actions: List[IO[A]]): IO[List[A]] =
+    actions.foldLeft(IO(List.empty[A])) { (state, action) =>
+      for {
+        res1 <- state
+        res2 <- action
       } yield res1 :+ res2
     }
 
@@ -219,7 +227,7 @@ object IO {
       case head :: next =>
         for {
           res1 <- head
-          res2 <- sequence(next)
+          res2 <- sequenceNotTailRec(next)
         } yield res1 :: res2
     }
 
