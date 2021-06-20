@@ -24,8 +24,11 @@ object SearchFlightService {
   //       You can also defined tests for `SearchResult` in `SearchResultTest`
   def fromTwoClients(client1: SearchFlightClient, client2: SearchFlightClient): SearchFlightService =
     new SearchFlightService {
-      def search(from: Airport, to: Airport, date: LocalDate): IO[SearchResult] =
-        ???
+      def search(from: Airport, to: Airport, date: LocalDate): IO[SearchResult] = for {
+        res1 <- client1.search(from, to, date)
+        res2 <- client2.search(from, to, date)
+      } yield SearchResult(res1 ++ res2)
+
 
     }
 

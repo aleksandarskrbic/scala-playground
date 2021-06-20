@@ -1,8 +1,12 @@
 package fp.foundations.chapter5.search
 
+import fp.foundations.chapter5.fp.search.{Flight, SearchResult}
+import fp.foundations.chapter5.search.SearchFlightGenerator.flightGen
 import org.scalacheck.Gen
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+
+import scala.math.Ordering.Implicits.infixOrderingOps
 
 // Run the test using the green arrow next to class name (if using IntelliJ)
 // or run `sbt` in the terminal to open it in shell mode, then type:
