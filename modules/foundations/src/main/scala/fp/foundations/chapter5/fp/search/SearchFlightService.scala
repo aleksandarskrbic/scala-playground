@@ -15,9 +15,9 @@ trait SearchFlightService {
 object SearchFlightService {
 
   def fromTwoClients(client1: SearchFlightClient, client2: SearchFlightClient): SearchFlightService =
-    fromClients(List(client1, client2))
+    fromClients(List(client1, client2))(ExecutionContext.global)
 
-  def fromClients(clients: List[SearchFlightClient]): SearchFlightService =
+  def fromClients(clients: List[SearchFlightClient])(ec: ExecutionContext): SearchFlightService =
     new SearchFlightService {
       def search(from: Airport, to: Airport, date: LocalDate): IO[SearchResult] = {
         def fetchFlights(client: SearchFlightClient): IO[List[Flight]] =
@@ -29,7 +29,7 @@ object SearchFlightService {
             })
 
         clients
-          .traverse(fetchFlights)
+          .parTraverse(fetchFlights)(ec)
           .map(_.flatten)
           .map(SearchResult.apply)
       }
@@ -43,19 +43,16 @@ object SearchFlightService {
   // (see `SearchResult` companion object).
   // Note: A example based test is defined in `SearchFlightServiceTest`.
   //       You can also defined tests for `SearchResult` in `SearchResultTest`
-  def fromTwoClientsTest(client1: SearchFlightClient, client2: SearchFlightClient): SearchFlightService =
+  def fromTwoClientsTest(client1: SearchFlightClient, client2: SearchFlightClient)(ec: ExecutionContext): SearchFlightService =
     new SearchFlightService {
       def search(from: Airport, to: Airport, date: LocalDate): IO[SearchResult] = {
         def searchByClient(client: SearchFlightClient): IO[List[Flight]] =
           client.search(from, to, date).onError(_ => IO(Nil))
 
-        for {
-          res1 <- searchByClient(client1)
-          res2 <- searchByClient(client2)
-        } yield SearchResult(res1 ++ res2)
+        searchByClient(client1)
+          .parZip(searchByClient(client2))(ec)
+          .map { case (first, second) => SearchResult(first ++ second) }
       }
-
-
     }
 
   // 2. Several clients can return data for the same flight. For example, if we combine data

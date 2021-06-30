@@ -10,6 +10,7 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 import java.time.{Duration, Instant, LocalDate}
+import scala.concurrent.ExecutionContext
 
 // Run the test using the green arrow next to class name (if using IntelliJ)
 // or run `sbt` in the terminal to open it in shell mode, then type:
@@ -30,7 +31,7 @@ class SearchFlightServiceTest extends AnyFunSuite with ScalaCheckDrivenPropertyC
     val client2 = SearchFlightClient.constant(IO(List(flight1b, flight2, flight4)))
     val client3 = SearchFlightClient.constant(IO.fail(new Exception("Boom")))
 
-    val service = SearchFlightService.fromClients(List(client1, client2, client3))
+    val service = SearchFlightService.fromClients(List(client1, client2, client3))(ExecutionContext.global)
     val result  = service.search(parisOrly, londonGatwick, today).unsafeRun()
 
     assert(result == SearchResult(List(flight1b, flight2, flight3, flight4)))
@@ -38,7 +39,7 @@ class SearchFlightServiceTest extends AnyFunSuite with ScalaCheckDrivenPropertyC
 
   test("search doesn't fail") {
     forAll(airportGen, airportGen, dateGen, Gen.listOf(clientGen)) { (from, to, date, clients) =>
-      val service = SearchFlightService.fromClients(clients)
+      val service = SearchFlightService.fromClients(clients)(ExecutionContext.global)
       val result  = service.search(from, to, date).attempt.unsafeRun()
 
       assert(result.isSuccess)
@@ -48,9 +49,9 @@ class SearchFlightServiceTest extends AnyFunSuite with ScalaCheckDrivenPropertyC
   test("search use all clients") {
     forAll(airportGen, airportGen, dateGen, Gen.listOf(clientGen), Gen.listOf(clientGen)) {
       (from, to, date, clients1, clients2) =>
-        val service1 = SearchFlightService.fromClients(clients1)
-        val service2 = SearchFlightService.fromClients(clients2)
-        val service3 = SearchFlightService.fromClients(clients1 ++ clients2)
+        val service1 = SearchFlightService.fromClients(clients1)(ExecutionContext.global)
+        val service2 = SearchFlightService.fromClients(clients2)(ExecutionContext.global)
+        val service3 = SearchFlightService.fromClients(clients1 ++ clients2)(ExecutionContext.global)
 
         val result1 = service1.search(from, to, date).unsafeRun()
         val result2 = service2.search(from, to, date).unsafeRun()
@@ -64,7 +65,7 @@ class SearchFlightServiceTest extends AnyFunSuite with ScalaCheckDrivenPropertyC
 
   test("fromClients - all results must match the from, to and date requested") {
     forAll(Gen.listOf(clientGen), airportGen, airportGen, dateGen, MinSuccessful(100)) { (clients, from, to, date) =>
-      val service = SearchFlightService.fromClients(clients)
+      val service = SearchFlightService.fromClients(clients)(ExecutionContext.global)
       val result  = service.search(from, to, date).unsafeRun()
 
       result.flights.foreach { flight =>
