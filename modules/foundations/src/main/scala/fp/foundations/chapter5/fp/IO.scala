@@ -199,6 +199,28 @@ trait IO[A] { self =>
   // Runs both the current IO and `other` concurrently,
   // then combine their results into a tuple
   def parZip[Other](other: IO[Other])(ec: ExecutionContext): IO[(A, Other)] =
+    IO.async { callback =>
+      val firstPromise: Promise[A] = Promise()
+      val secondPromise: Promise[Other] = Promise()
+
+      ec.execute(() => {
+        unsafeRunAsync { tryA =>
+          firstPromise.complete(tryA)
+        }
+      })
+
+      ec.execute(() => {
+        other.unsafeRunAsync { tryA =>
+          secondPromise.complete(tryA)
+        }
+      })
+
+      val zipped = firstPromise.future.zip(secondPromise.future)
+
+      zipped.onComplete(callback)(ec)
+    }
+
+  def parZip2[Other](other: IO[Other])(ec: ExecutionContext): IO[(A, Other)] =
     IO {
       val first  = Future(self.unsafeRun())(ec)
       val second = Future(other.unsafeRun())(ec)
