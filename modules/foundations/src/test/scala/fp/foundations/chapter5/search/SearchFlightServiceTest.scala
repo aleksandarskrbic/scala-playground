@@ -2,14 +2,14 @@ package fp.foundations.chapter5.search
 
 import fp.foundations.chapter5.DateGenerator.dateGen
 import fp.foundations.chapter5.fp.IO
-import fp.foundations.chapter5.fp.search.Airport.{londonGatwick, parisOrly}
-import fp.foundations.chapter5.fp.search.{Flight, SearchFlightClient, SearchFlightService, SearchResult}
-import fp.foundations.chapter5.search.SearchFlightGenerator.{airportGen, clientGen}
+import fp.foundations.chapter5.fp.search.Airport.{ londonGatwick, parisOrly }
+import fp.foundations.chapter5.fp.search.{ Flight, SearchFlightClient, SearchFlightService, SearchResult }
+import fp.foundations.chapter5.search.SearchFlightGenerator.{ airportGen, clientGen }
 import org.scalacheck.Gen
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-import java.time.{Duration, Instant, LocalDate}
+import java.time.{ Duration, Instant, LocalDate }
 import scala.concurrent.ExecutionContext
 
 // Run the test using the green arrow next to class name (if using IntelliJ)

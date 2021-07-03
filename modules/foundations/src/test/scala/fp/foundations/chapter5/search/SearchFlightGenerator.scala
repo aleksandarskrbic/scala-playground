@@ -1,7 +1,7 @@
 package fp.foundations.chapter5.search
 
 import fp.foundations.chapter5.fp.IO
-import fp.foundations.chapter5.fp.search.{Airport, Flight, SearchFlightClient}
+import fp.foundations.chapter5.fp.search.{ Airport, Flight, SearchFlightClient }
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 
@@ -27,11 +27,11 @@ object SearchFlightGenerator {
       to       <- airportGen // .filterNot(_ == from)
       duration <- Gen.choose(20, 2400).map(Duration.ofMinutes(_))
       departureAt <- Gen
-        .choose(
-          LocalDate.of(2020, 1, 1).atStartOfDay(ZoneId.of("UTC")).toEpochSecond,
-          LocalDate.of(2060, 1, 1).atStartOfDay(ZoneId.of("UTC")).toEpochSecond
-        )
-        .map(Instant.ofEpochSecond)
+                      .choose(
+                        LocalDate.of(2020, 1, 1).atStartOfDay(ZoneId.of("UTC")).toEpochSecond,
+                        LocalDate.of(2060, 1, 1).atStartOfDay(ZoneId.of("UTC")).toEpochSecond
+                      )
+                      .map(Instant.ofEpochSecond)
       numberOfStops <- Gen.choose(0, 4)
       unitPrice     <- Gen.choose(0.0, 40000.0)
       redirectLink  <- arbitrary[String]

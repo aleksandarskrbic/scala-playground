@@ -24,9 +24,7 @@ object SearchFlightService {
           client
             .search(from, to, date)
             .handleErrorWith(_ => IO(Nil))
-            .map(_.filter { flight =>
-              flight.from == from && flight.to == to && flight.departureDate == date
-            })
+            .map(_.filter(flight => flight.from == from && flight.to == to && flight.departureDate == date))
 
         clients
           .parTraverse(fetchFlights)(ec)
@@ -43,7 +41,9 @@ object SearchFlightService {
   // (see `SearchResult` companion object).
   // Note: A example based test is defined in `SearchFlightServiceTest`.
   //       You can also defined tests for `SearchResult` in `SearchResultTest`
-  def fromTwoClientsTest(client1: SearchFlightClient, client2: SearchFlightClient)(ec: ExecutionContext): SearchFlightService =
+  def fromTwoClientsTest(client1: SearchFlightClient, client2: SearchFlightClient)(
+    ec: ExecutionContext
+  ): SearchFlightService =
     new SearchFlightService {
       def search(from: Airport, to: Airport, date: LocalDate): IO[SearchResult] = {
         def searchByClient(client: SearchFlightClient): IO[List[Flight]] =

@@ -2,15 +2,19 @@ package fp.foundations.chapter5.fp
 
 import java.util.concurrent.CountDownLatch
 import scala.annotation.tailrec
-import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
-import scala.concurrent.{Await, ExecutionContext, Future, Promise}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.duration.{ Duration, DurationInt, FiniteDuration }
+import scala.concurrent.{ Await, ExecutionContext, Future, Promise }
+import scala.util
+import scala.util.{ Failure, Success, Try }
 
 trait IO[A] { self =>
 
-  // Executes the action.
   // This is the ONLY abstract method of the `IO` trait.
-  def unsafeRun(): A
+  def unsafeRunAsync(callback: Try[A] => Unit): Unit
+
+  // Executes the action.
+  def unsafeRun(): A =
+    ???
 
   // Runs the current IO (`this`), discards its result and runs the second IO (`other`).
   // For example,
@@ -169,12 +173,12 @@ trait IO[A] { self =>
   // then combine their results into a tuple
   def parZip[Other](other: IO[Other])(ec: ExecutionContext): IO[(A, Other)] =
     IO {
-      val first = Future(self.unsafeRun())(ec)
+      val first  = Future(self.unsafeRun())(ec)
       val second = Future(other.unsafeRun())(ec)
       val zipped = first.zip(second)
 
       Await.result(zipped, Duration.Inf)
-  }
+    }
 
 }
 
@@ -185,7 +189,16 @@ object IO {
   // prints "Hello"
   def apply[A](action: => A): IO[A] =
     new IO[A] {
-      def unsafeRun(): A = action
+      override def unsafeRunAsync(callback: Try[A] => Unit): Unit = {
+        val result = Try(action)
+        callback(result)
+      }
+    }
+
+  def dispatch[A](action: => A)(ec: ExecutionContext): IO[A] =
+    new IO[A] {
+      override def unsafeRunAsync(callback: Try[A] => Unit): Unit =
+        ec.execute(() => callback(Try(action)))
     }
 
   // Construct an IO which throws `error` everytime it is called.
@@ -212,12 +225,14 @@ object IO {
   // If no error occurs, it returns the users in the same order:
   // List(User(1111, ...), User(2222, ...), User(3333, ...))
   def sequence[A](actions: List[IO[A]]): IO[List[A]] =
-    actions.foldLeft(IO(List.empty[A])) { (state, action) =>
-      for {
-        res1 <- state
-        res2 <- action
-      } yield res2 :: res1 // add to the end of the list which is not expensive
-    }.map(_.reverse) // reverse list to get correct result
+    actions
+      .foldLeft(IO(List.empty[A])) { (state, action) =>
+        for {
+          res1 <- state
+          res2 <- action
+        } yield res2 :: res1 // add to the end of the list which is not expensive
+      }
+      .map(_.reverse) // reverse list to get correct result
 
   def sequenceNonOptimal[A](actions: List[IO[A]]): IO[List[A]] =
     actions.foldLeft(IO(List.empty[A])) { (state, action) =>
@@ -259,9 +274,11 @@ object IO {
   // List(User(1111, ...), User(2222, ...), User(3333, ...))
   // Note: You may want to use `parZip` to implement `parSequence`.
   def parSequence[A](actions: List[IO[A]])(ec: ExecutionContext): IO[List[A]] =
-    actions.foldLeft(IO(List.empty[A])) { (state, action) =>
-      state.parZip(action)(ec).map { case (res1, res2) => res2 :: res1}
-    }.map(_.reverse)
+    actions
+      .foldLeft(IO(List.empty[A])) { (state, action) =>
+        state.parZip(action)(ec).map { case (res1, res2) => res2 :: res1 }
+      }
+      .map(_.reverse)
 
   // `parTraverse` is a shortcut for `map` followed by `parSequence`, similar to how
   // `flatMap`     is a shortcut for `map` followed by `flatten`

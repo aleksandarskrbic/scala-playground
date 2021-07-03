@@ -1,6 +1,6 @@
 package fp.foundations.chapter5.search
 
-import fp.foundations.chapter5.fp.search.{Flight, SearchResult}
+import fp.foundations.chapter5.fp.search.{ Flight, SearchResult }
 import fp.foundations.chapter5.search.SearchFlightGenerator.flightGen
 import org.scalacheck.Gen
 import org.scalatest.funsuite.AnyFunSuite
