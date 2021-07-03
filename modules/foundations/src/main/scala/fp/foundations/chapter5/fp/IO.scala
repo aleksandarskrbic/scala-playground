@@ -21,7 +21,9 @@ trait IO[A] { self =>
       case Failure(exception) => result = Some(Failure(exception))
     }*/
 
-    unsafeRunAsync(tryA => result = Some(tryA))
+    unsafeRunAsync(tryA => result = Some(tryA)) // race condition
+
+    while (result.isEmpty) Thread.sleep(10)
 
     result.get.get
   }
