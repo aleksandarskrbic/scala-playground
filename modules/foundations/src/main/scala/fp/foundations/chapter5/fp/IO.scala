@@ -83,11 +83,16 @@ trait IO[A] { self =>
   // action.unsafeRun()
   // Fetches the user with id 1234 from the database and send them an email using the email
   // address found in the database.
-  def flatMap[Next](callback: A => IO[Next]): IO[Next] =
-    IO {
-      val a: A           = self.unsafeRun()
-      val next: IO[Next] = callback(a)
-      next.unsafeRun()
+  def flatMap[Next](next: A => IO[Next]): IO[Next] =
+    IO.async { callback =>
+      unsafeRunAsync {
+        case Success(value) =>
+          next(value).unsafeRunAsync {
+            case Success(value) => callback(Success(value))
+            case Failure(exception) => callback(Failure(exception))
+          }
+        case Failure(exception) => callback(Failure(exception))
+      }
     }
 
   // Runs the current action, if it fails it executes `cleanup` and rethrows the original error.
