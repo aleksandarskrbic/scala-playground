@@ -13,8 +13,19 @@ trait IO[A] { self =>
   def unsafeRunAsync(callback: Try[A] => Unit): Unit
 
   // Executes the action.
-  def unsafeRun(): A =
-    ???
+  def unsafeRun(): A = {
+    var result: Option[Try[A]] = None
+
+/*    unsafeRunAsync {
+      case Success(value) => result = Some(Success(value))
+      case Failure(exception) => result = Some(Failure(exception))
+    }*/
+
+    unsafeRunAsync(tryA => result = Some(tryA))
+
+    result.get.get
+  }
+
 
   // Runs the current IO (`this`), discards its result and runs the second IO (`other`).
   // For example,
@@ -187,18 +198,21 @@ object IO {
   // val greeting: IO[Unit] = IO { println("Hello") }
   // greeting.unsafeRun()
   // prints "Hello"
-  def apply[A](action: => A): IO[A] =
+
+  def async[A](onComplete: (Try[A] => Unit) => Unit): IO[A] =
     new IO[A] {
-      override def unsafeRunAsync(callback: Try[A] => Unit): Unit = {
-        val result = Try(action)
-        callback(result)
-      }
+      override def unsafeRunAsync(callback: Try[A] => Unit): Unit =
+        onComplete(callback)
+  }
+
+  def apply[A](action: => A): IO[A] =
+    async { callback =>
+      callback(Try(action))
     }
 
   def dispatch[A](action: => A)(ec: ExecutionContext): IO[A] =
-    new IO[A] {
-      override def unsafeRunAsync(callback: Try[A] => Unit): Unit =
-        ec.execute(() => callback(Try(action)))
+    async { callback =>
+      ec.execute(() => callback(Try(action)))
     }
 
   // Construct an IO which throws `error` everytime it is called.
