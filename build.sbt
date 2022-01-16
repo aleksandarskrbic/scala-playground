@@ -2,17 +2,19 @@ name := "functional-scala-playground"
 version := "0.1"
 scalaVersion := "2.13.6"
 
-val `essential-effects` = project.in(file("modules/essential-effects"))
+val `essential-effects` = project
+  .in(file("modules/essential-effects"))
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.1.0")
 
-val `scala-with-cats` = project.in(file("modules/scala-with-cats"))
+val `scala-with-cats` = project
+  .in(file("modules/scala-with-cats"))
   .settings(
     scalacOptions ++= Seq("-Xfatal-warnings"),
     libraryDependencies += "org.typelevel" %% "cats-core" % "2.1.0"
   )
 
-
-val `typelevel-programming` = project.in(file("modules/typelevel-programming"))
+val `typelevel-programming` = project
+  .in(file("modules/typelevel-programming"))
   .settings(libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value)
 
 val `data-juggling` = project.in(file("modules/data-juggling"))
@@ -42,10 +44,12 @@ val foundations = project
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3" cross CrossVersion.binary)
   )
 
-lazy val `fp-in-scala` = project.in(file("modules/fp-in-scala"))
+lazy val `fp-in-scala` = project
+  .in(file("modules/fp-in-scala"))
   .settings(scalaVersion := "2.13.6")
 
-lazy val `concurrent-programming` = project.in(file("modules/concurrent-programming"))
+lazy val `concurrent-programming` = project
+  .in(file("modules/concurrent-programming"))
   .settings(
     scalaVersion := "2.13.6",
     fork := false,
@@ -54,7 +58,12 @@ lazy val `concurrent-programming` = project.in(file("modules/concurrent-programm
     )
   )
 
-lazy val `shapeless-guide` = project. in(file("modules/shapeless-guide"))
+lazy val `shapeless-guide` = project
+  .in(file("modules/shapeless-guide"))
   .settings(libraryDependencies ++= Seq("com.chuusai" %% "shapeless" % "2.3.7"))
+
+lazy val `fp-problem-solving` = project
+  .in(file("modules/fp-problem-solving"))
+  .settings(scalaVersion := "2.13.6")
 
 addCommandAlias("fmt", "all scalafmtSbt scalafmtAll")
