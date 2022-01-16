@@ -1,6 +1,7 @@
-package shapeless.guide.derivation
+package shapeless.guide.derivation.test
 
 import shapeless._
+import shapeless.guide.derivation.{ Employee, IceCream }
 
 object CsvEncoderTake2 {
   // "Summoner"/"Materializer”, allows us to summon a type class instance given a target type

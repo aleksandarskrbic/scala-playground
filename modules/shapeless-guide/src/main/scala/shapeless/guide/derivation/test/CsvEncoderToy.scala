@@ -1,4 +1,4 @@
-package shapeless.guide.derivation
+package shapeless.guide.derivation.test
 
 trait CsvEncoderToy[A] {
   def encode(value: A): List[String]

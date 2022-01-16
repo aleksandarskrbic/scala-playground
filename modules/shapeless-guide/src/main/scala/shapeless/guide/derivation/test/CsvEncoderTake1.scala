@@ -1,4 +1,7 @@
-package shapeless.guide.derivation
+package shapeless.guide.derivation.test
+
+import shapeless.guide.derivation.{ Employee, IceCream }
+import shapeless.guide.derivation.test.CsvEncoderToy.writeCsv
 
 object CsvEncoderTake1 {
   implicit val employeeEncoder: CsvEncoderToy[Employee] =
@@ -36,7 +39,6 @@ object CsvEncoderTake1 {
 
 object Demo1 extends App {
   import CsvEncoderTake1._
-  import shapeless.guide.derivation.CsvEncoderToy.writeCsv
 
   val employees: List[Employee] = List(
     Employee("Bill", 1, true),

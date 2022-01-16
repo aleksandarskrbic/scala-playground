@@ -1,9 +1,9 @@
-package shapeless.guide.derivation
+package shapeless.guide.derivation.test
 
-import shapeless.{ ::, Generic, HList, HNil }
-import shapeless.{ :+:, CNil, Coproduct, Inl, Inr }
 import shapeless.guide.adt.Shape
 import shapeless.guide.adt.Shape._
+import shapeless.guide.derivation.test.CsvEncoderToy.writeCsv
+import shapeless.{ :+:, ::, CNil, Coproduct, Generic, HList, HNil, Inl, Inr }
 
 object CsvEncoderTake4 {
   def apply[A](implicit encoder: CsvEncoderToy[A]): CsvEncoderToy[A] =
@@ -61,7 +61,6 @@ object CsvEncoderTake4 {
 
 object Demo4 extends App {
   import CsvEncoderTake4._
-  import shapeless.guide.derivation.CsvEncoderToy.writeCsv
 
   val shapes: List[Shape] = List(Rectangle(3.0, 4.0), Circle(1.0))
 
