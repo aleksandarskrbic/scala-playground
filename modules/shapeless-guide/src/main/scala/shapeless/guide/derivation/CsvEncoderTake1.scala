@@ -4,9 +4,6 @@ trait CsvEncoder[A] {
   def encode(value: A): List[String]
 }
 
-case class Employee(name: String, number: Int, manager: Boolean)
-case class IceCream(name: String, numCherries: Int, inCone: Boolean)
-
 object Encoders {
   implicit val employeeEncoder: CsvEncoder[Employee] =
     new CsvEncoder[Employee] {
