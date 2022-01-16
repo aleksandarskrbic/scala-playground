@@ -36,9 +36,7 @@ object CsvEncoderTake1 {
 
 object Demo1 extends App {
   import CsvEncoderTake1._
-
-  def writeCsv[A](values: List[A])(implicit encoder: CsvEncoder[A]): String =
-    values.map(value => encoder.encode(value).mkString(",")).mkString("\n")
+  import shapeless.guide.derivation.CsvEncoder.writeCsv
 
   val employees: List[Employee] = List(
     Employee("Bill", 1, true),
@@ -53,8 +51,8 @@ object Demo1 extends App {
   )
 
   println(writeCsv(employees))
-  println("")
+  println()
   println(writeCsv(iceCreams))
-  println("")
+  println()
   println(writeCsv(employees zip iceCreams))
 }
