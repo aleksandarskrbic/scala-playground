@@ -1,6 +1,6 @@
 package typelevel.programming
 
-import typelevel.programming.part1.Natural
+import typelevel.programming.part1.{Natural, _1, _2}
 
 object part1 {
 
@@ -27,9 +27,8 @@ object part1 {
 
   // is _2 < _3 ???
   trait <[A <: Natural, B <: Natural]
-
   object < {
-    implicit def less[B <: Natural]: <[_0, Successor[B]] =
+    implicit def lt[B <: Natural]: <[_0, Successor[B]] =
       new <[_0, Successor[B]] {}
 
     implicit def inductive[A <: Natural, B <: Natural](implicit lt: <[A, B]): <[Successor[A], Successor[B]] =
@@ -43,8 +42,21 @@ object part1 {
   // val comparison3: <[_1, _2] = <[_1, _2] -> Can't compile no implicit found!
 
   // after implementing inductive
-  val comparison3: <[_1, _2] = <[_1, _2]
+  val comparison3: <[_1, _3] = <[_1, _3]
+
+  trait <=[A <: Natural, B <: Natural]
+  object <= {
+    implicit def lte[B <: Natural]: <=[_0, B] =
+      new <=[_0, B] {}
+
+    implicit def inductive[A <: Natural, B <: Natural](implicit lte: <=[A, B]): <=[Successor[A], Successor[B]] =
+      new <=[Successor[A], Successor[B]] {}
+
+    def apply[A <: Natural, B <: Natural](implicit lte: <=[A, B]): A <= B = implicitly
+  }
+
+  val lteTest: _2 <= _2 = <=[_2, _2]
 
   def main(args: Array[String]): Unit =
-    println(show(List(1, 2, 3)))
+    println(show(comparison3))
 }

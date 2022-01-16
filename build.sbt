@@ -51,4 +51,16 @@ lazy val `fp-in-scala` = (project in file("modules/fp-in-scala"))
     name := "fp-in-scala"
   )
 
+lazy val `concurrent-programming` = (project in file("modules/concurrent-programming"))
+  .settings(scalaVersion := "2.13.6")
+  .settings(
+    name := "concurrent-programming",
+    fork := false
+  )
+  .settings(
+    libraryDependencies ++= Seq(
+      "commons-io" % "commons-io" % "2.11.0"
+    )
+  )
+
 addCommandAlias("fmt", "all scalafmtSbt scalafmtAll")
