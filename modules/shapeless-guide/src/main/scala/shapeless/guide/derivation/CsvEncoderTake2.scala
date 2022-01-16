@@ -2,11 +2,7 @@ package shapeless.guide.derivation
 
 import shapeless._
 
-trait CsvEncoder[A] {
-  def encode(value: A): List[String]
-}
-
-object CsvEncoder {
+object CsvEncoderTake2 {
   // "Summoner"/"Materializer”, allows us to summon a type class instance given a target type
   def apply[A](implicit encoder: CsvEncoder[A]): CsvEncoder[A] =
     encoder
@@ -50,13 +46,10 @@ object CsvEncoder {
     instance(b => if (b) List("yes") else List("no"))
 }
 
-case class Employee(name: String, number: Int, manager: Boolean)
-case class IceCream(name: String, numCherries: Int, inCone: Boolean)
+object Demo2 extends App {
+  import CsvEncoderTake2._
 
-object Demo extends App {
-  import CsvEncoder._
-
-  val a = CsvEncoder[IceCream]
+  val a = CsvEncoderTake2.apply[IceCream]
   val b = implicitly[CsvEncoder[IceCream]]
   val c = the[CsvEncoder[IceCream]]
 }

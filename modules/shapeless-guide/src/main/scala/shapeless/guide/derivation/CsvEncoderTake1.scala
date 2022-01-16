@@ -1,10 +1,6 @@
 package shapeless.guide.derivation
 
-trait CsvEncoder[A] {
-  def encode(value: A): List[String]
-}
-
-object Encoders {
+object CsvEncoderTake1 {
   implicit val employeeEncoder: CsvEncoder[Employee] =
     new CsvEncoder[Employee] {
       def encode(e: Employee): List[String] =
@@ -38,14 +34,11 @@ object Encoders {
     }
 }
 
-object CsvEncoderOps {
+object Demo1 extends App {
+  import CsvEncoderTake1._
+
   def writeCsv[A](values: List[A])(implicit encoder: CsvEncoder[A]): String =
     values.map(value => encoder.encode(value).mkString(",")).mkString("\n")
-}
-
-object Demo extends App {
-  import Encoders._
-  import CsvEncoderOps._
 
   val employees: List[Employee] = List(
     Employee("Bill", 1, true),
