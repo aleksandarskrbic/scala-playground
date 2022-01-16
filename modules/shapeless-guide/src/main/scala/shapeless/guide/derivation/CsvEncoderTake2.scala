@@ -4,17 +4,17 @@ import shapeless._
 
 object CsvEncoderTake2 {
   // "Summoner"/"Materializer”, allows us to summon a type class instance given a target type
-  def apply[A](implicit encoder: CsvEncoder[A]): CsvEncoder[A] =
+  def apply[A](implicit encoder: CsvEncoderToy[A]): CsvEncoderToy[A] =
     encoder
 
   // "Constructor" method
-  def instance[A](fn: A => List[String]): CsvEncoder[A] =
-    new CsvEncoder[A] {
+  def instance[A](fn: A => List[String]): CsvEncoderToy[A] =
+    new CsvEncoderToy[A] {
       override def encode(value: A): List[String] =
         fn(value)
     }
 
-  implicit val employeeEncoder: CsvEncoder[Employee] =
+  implicit val employeeEncoder: CsvEncoderToy[Employee] =
     instance { employee =>
       List(
         employee.name,
@@ -23,7 +23,7 @@ object CsvEncoderTake2 {
       )
     }
 
-  implicit val iceCreamEncoder: CsvEncoder[IceCream] =
+  implicit val iceCreamEncoder: CsvEncoderToy[IceCream] =
     instance { iceCream =>
       List(
         iceCream.name,
@@ -34,15 +34,15 @@ object CsvEncoderTake2 {
 
   implicit def pairEncoder[A, B](
     implicit
-    aEncoder: CsvEncoder[A],
-    bEncoder: CsvEncoder[B]
-  ): CsvEncoder[(A, B)] =
+    aEncoder: CsvEncoderToy[A],
+    bEncoder: CsvEncoderToy[B]
+  ): CsvEncoderToy[(A, B)] =
     instance { pair: (A, B) =>
       val (a, b) = pair
       aEncoder.encode(a) ++ bEncoder.encode(b)
     }
 
-  implicit val booleanEncoder: CsvEncoder[Boolean] =
+  implicit val booleanEncoder: CsvEncoderToy[Boolean] =
     instance(b => if (b) List("yes") else List("no"))
 }
 
@@ -50,6 +50,6 @@ object Demo2 extends App {
   import CsvEncoderTake2._
 
   val a = CsvEncoderTake2.apply[IceCream]
-  val b = implicitly[CsvEncoder[IceCream]]
-  val c = the[CsvEncoder[IceCream]]
+  val b = implicitly[CsvEncoderToy[IceCream]]
+  val c = the[CsvEncoderToy[IceCream]]
 }

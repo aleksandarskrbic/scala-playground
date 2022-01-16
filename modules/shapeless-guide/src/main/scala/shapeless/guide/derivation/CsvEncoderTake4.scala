@@ -1,8 +1,11 @@
 package shapeless.guide.derivation
 
 import shapeless.{ ::, Generic, HList, HNil }
+import shapeless.{ :+:, CNil, Coproduct, Inl, Inr }
+import shapeless.guide.adt.Shape
+import shapeless.guide.adt.Shape._
 
-object CsvEncoderTake3 {
+object CsvEncoderTake4 {
   def apply[A](implicit encoder: CsvEncoderToy[A]): CsvEncoderToy[A] =
     encoder
 
@@ -33,50 +36,34 @@ object CsvEncoderTake3 {
       case h :: t => hEncoder.encode(h) ++ tEncoder.encode(t)
     }
 
-  /*
-  implicit def genericEncoder[A, R](
-    implicit
-    gen: Generic[A] { type Repr = R },
-    enc: CsvEncoder[R]
-  ): CsvEncoder[A] =
-    instance(a => enc.encode(gen.to(a)))
-   */
-
   implicit def genericEncoder[A, R](
     implicit
     gen: Generic.Aux[A, R],
     enc: CsvEncoderToy[R]
   ): CsvEncoderToy[A] =
     instance(a => enc.encode(gen.to(a)))
+
+  implicit val cnilEncoder: CsvEncoderToy[CNil] =
+    instance(_ => throw new Exception("Inconceivable!"))
+
+  implicit val doubleEncoder: CsvEncoderToy[Double] =
+    instance(d => List(d.toString))
+
+  implicit def coproductEncoder[H, T <: Coproduct](
+    implicit
+    hEncoder: CsvEncoderToy[H],
+    tEncoder: CsvEncoderToy[T]
+  ): CsvEncoderToy[H :+: T] = instance {
+    case Inl(h) => hEncoder.encode(h)
+    case Inr(t) => tEncoder.encode(t)
+  }
 }
 
-object Demo3 extends App {
-  import CsvEncoderTake3._
+object Demo4 extends App {
+  import CsvEncoderTake4._
   import shapeless.guide.derivation.CsvEncoderToy.writeCsv
 
-  val employees: List[Employee] = List(
-    Employee("Bill", 1, true),
-    Employee("Peter", 2, false),
-    Employee("Milton", 3, false)
-  )
+  val shapes: List[Shape] = List(Rectangle(3.0, 4.0), Circle(1.0))
 
-  val iceCreams: List[IceCream] = List(
-    IceCream("Sundae", 1, false),
-    IceCream("Cornetto", 0, true),
-    IceCream("Banana Split", 0, false)
-  )
-
-  val reprEncoder: CsvEncoderToy[String :: Int :: Boolean :: HNil] = implicitly
-
-  println(reprEncoder.encode("abc" :: 123 :: true :: HNil))
-  println()
-
-  /*  val csv = writeCsv(iceCreams)(
-    genericEncoder(
-      Generic[IceCream],
-      hlistEncoder(stringEncoder, hlistEncoder(intEncoder, hlistEncoder(booleanEncoder, hnilEncoder)))
-    )
-  )*/
-
-  println(writeCsv(iceCreams))
+  println(writeCsv(shapes))
 }

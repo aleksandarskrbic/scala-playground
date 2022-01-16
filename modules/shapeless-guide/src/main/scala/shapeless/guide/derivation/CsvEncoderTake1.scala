@@ -1,8 +1,8 @@
 package shapeless.guide.derivation
 
 object CsvEncoderTake1 {
-  implicit val employeeEncoder: CsvEncoder[Employee] =
-    new CsvEncoder[Employee] {
+  implicit val employeeEncoder: CsvEncoderToy[Employee] =
+    new CsvEncoderToy[Employee] {
       def encode(e: Employee): List[String] =
         List(
           e.name,
@@ -11,8 +11,8 @@ object CsvEncoderTake1 {
         )
     }
 
-  implicit val iceCreamEncoder: CsvEncoder[IceCream] =
-    new CsvEncoder[IceCream] {
+  implicit val iceCreamEncoder: CsvEncoderToy[IceCream] =
+    new CsvEncoderToy[IceCream] {
       def encode(i: IceCream): List[String] =
         List(
           i.name,
@@ -23,10 +23,10 @@ object CsvEncoderTake1 {
 
   implicit def pairEncoder[A, B](
     implicit
-    aEncoder: CsvEncoder[A],
-    bEncoder: CsvEncoder[B]
-  ): CsvEncoder[(A, B)] =
-    new CsvEncoder[(A, B)] {
+    aEncoder: CsvEncoderToy[A],
+    bEncoder: CsvEncoderToy[B]
+  ): CsvEncoderToy[(A, B)] =
+    new CsvEncoderToy[(A, B)] {
       override def encode(pair: (A, B)): List[String] = {
         val (a, b) = pair
         aEncoder.encode(a) ++ bEncoder.encode(b)
@@ -36,7 +36,7 @@ object CsvEncoderTake1 {
 
 object Demo1 extends App {
   import CsvEncoderTake1._
-  import shapeless.guide.derivation.CsvEncoder.writeCsv
+  import shapeless.guide.derivation.CsvEncoderToy.writeCsv
 
   val employees: List[Employee] = List(
     Employee("Bill", 1, true),
