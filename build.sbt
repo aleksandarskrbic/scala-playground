@@ -55,6 +55,6 @@ lazy val `concurrent-programming` = project.in(file("modules/concurrent-programm
   )
 
 lazy val `shapeless-guide` = project. in(file("modules/shapeless-guide"))
-  .settings(libraryDependencies ++= Seq("com.chuusai" %% "shapeless" % "2.3.3"))
+  .settings(libraryDependencies ++= Seq("com.chuusai" %% "shapeless" % "2.3.7"))
 
 addCommandAlias("fmt", "all scalafmtSbt scalafmtAll")
