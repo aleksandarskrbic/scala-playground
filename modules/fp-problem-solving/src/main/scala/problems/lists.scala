@@ -30,6 +30,16 @@ sealed abstract class RList[+T] { self =>
   }
 }
 
+object RList {
+  def from[T](iterable: Iterable[T]): RList[T] = {
+    @tailrec def loop(remaining: Iterable[T], result: RList[T]): RList[T] =
+      if (remaining.isEmpty) result
+      else loop(remaining.tail, remaining.head :: result)
+
+    loop(iterable, RNil).reverse
+  }
+}
+
 case object RNil extends RList[Nothing] {
   override def head: Nothing =
     throw new NoSuchElementException
@@ -78,4 +88,5 @@ object test extends App {
   println(list1(1))
   println(list2.length)
   println(list1.reverse)
+  println(RList.from(List(3, 4, 5)))
 }
