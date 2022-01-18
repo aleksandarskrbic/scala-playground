@@ -39,6 +39,10 @@ sealed abstract class RList[+T] { self =>
   }
 
   def removeAt(index: Int): RList[T]
+
+  def map[S](fn: T => S): RList[S]
+  def flatMap[S](fn: T => RList[S]): RList[S]
+  def filter(fn: T => Boolean): RList[T]
 }
 
 object RList {
@@ -67,8 +71,17 @@ case object RNil extends RList[Nothing] { self =>
   override def apply(index: Int): Nothing =
     throw new NoSuchElementException
 
-  def removeAt(index: Int): RList[Nothing] =
+  override def removeAt(index: Int): RList[Nothing] =
     self
+
+  override def map[S](fn: Nothing => S): RList[S] =
+    RNil
+
+  override def flatMap[S](fn: Nothing => RList[S]): RList[S] =
+    RNil
+
+  override def filter(fn: Nothing => Boolean): RList[Nothing] =
+    RNil
 }
 
 case class ::[+T](override val head: T, override val tail: RList[T]) extends RList[T] { self =>
@@ -103,6 +116,18 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
     else if (index == 0) tail
     else loop(self, RNil, 0).reverse
   }
+
+  override def map[S](fn: T => S): RList[S] = {
+    @tailrec def loop(remaining: RList[T], result: RList[S]): RList[S] =
+      if (remaining.isEmpty) result
+      else loop(remaining.tail, fn(remaining.head) :: result)
+
+    loop(self.reverse, RNil)
+  }
+
+  override def flatMap[S](fn: T => RList[S]): RList[S] = ???
+
+  override def filter(fn: T => Boolean): RList[T] = ???
 }
 
 object test extends App {
@@ -119,6 +144,8 @@ object test extends App {
   val concatenated = RList.from(List(1, 2, 3)) ++ RList.from(List(4, 5, 6))
   println(concatenated)*/
 
-  println(list.removeAt(2))
-  println(list.removeAt(0))
+  /*  println(list.removeAt(2))
+  println(list.removeAt(0))*/
+
+  println(list.map(_ * 2))
 }
