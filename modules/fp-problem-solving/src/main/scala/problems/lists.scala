@@ -43,6 +43,9 @@ sealed abstract class RList[+T] { self =>
 
   // run-length-encoding
   def rle: RList[(T, Int)]
+  def duplicateEach(n: Int): RList[T]
+  // rotate each element n positions to left
+  def rotate(n: Int): RList[T]
 }
 
 object RList {
@@ -87,6 +90,12 @@ case object RNil extends RList[Nothing] { self =>
     RNil
 
   override def rle: RList[(Nothing, Int)] =
+    RNil
+
+  override def duplicateEach(n: Int): RList[Nothing] =
+    RNil
+
+  override def rotate(n: Int): RList[Nothing] =
     RNil
 }
 
@@ -152,13 +161,24 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
   }
 
   override def rle: RList[(T, Int)] = {
-    def loop(remaining: RList[T], currentPair: (T, Int), accumulator: RList[(T, Int)]): RList[(T, Int)] =
+    @tailrec def loop(remaining: RList[T], currentPair: (T, Int), accumulator: RList[(T, Int)]): RList[(T, Int)] =
       if (remaining.isEmpty) currentPair :: accumulator
       else if (remaining.head == currentPair._1) loop(remaining.tail, (currentPair._1, currentPair._2 + 1), accumulator)
       else loop(remaining.tail, (remaining.head, 1), currentPair :: accumulator)
 
     loop(self.tail, (self.head, 1), RNil).reverse
   }
+
+  override def duplicateEach(n: Int): RList[T] = {
+    @tailrec def loop(remaining: RList[T], currentCount: Int, result: RList[T]): RList[T] =
+      if (remaining.isEmpty) result
+      else if (currentCount < n) loop(remaining, currentCount + 1, remaining.head :: result)
+      else loop(remaining.tail, 0, result)
+
+    loop(self, 0, RNil).reverse
+  }
+
+  override def rotate(n: Int): RList[T] = ???
 }
 
 object test extends App {
@@ -185,4 +205,6 @@ object test extends App {
    */
 
   println(RList.from(List(1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 5, 5, 6, 7)).rle)
+
+  println(list.duplicateEach(3))
 }
