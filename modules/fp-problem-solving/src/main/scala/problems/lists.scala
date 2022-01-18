@@ -4,11 +4,8 @@ import scala.annotation.tailrec
 
 sealed abstract class RList[+T] { self =>
   def head: T
-
   def tail: RList[T]
-
   def isEmpty: Boolean
-
   def ::[S >: T](elem: S): RList[S] = new ::(elem, self)
 
   def apply(index: Int): T
@@ -43,6 +40,9 @@ sealed abstract class RList[+T] { self =>
   def map[S](fn: T => S): RList[S]
   def flatMap[S](fn: T => RList[S]): RList[S]
   def filter(fn: T => Boolean): RList[T]
+
+  // run-length-encoding
+  def rle: RList[(T, Int)]
 }
 
 object RList {
@@ -53,6 +53,9 @@ object RList {
 
     loop(iterable, RNil).reverse
   }
+
+  def from[T](elem: T): RList[T] =
+    elem :: RNil
 }
 
 case object RNil extends RList[Nothing] { self =>
@@ -81,6 +84,9 @@ case object RNil extends RList[Nothing] { self =>
     RNil
 
   override def filter(fn: Nothing => Boolean): RList[Nothing] =
+    RNil
+
+  override def rle: RList[(Nothing, Int)] =
     RNil
 }
 
@@ -133,7 +139,26 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
     loop(self.reverse, RNil)
   }
 
-  override def filter(fn: T => Boolean): RList[T] = ???
+  override def filter(fn: T => Boolean): RList[T] = {
+    @tailrec def loop(remaining: RList[T], result: RList[T]): RList[T] =
+      if (remaining.isEmpty) result
+      else {
+        val currentElement = remaining.head
+        if (fn(currentElement)) loop(remaining.tail, currentElement :: result)
+        else loop(remaining.tail, result)
+      }
+
+    loop(self, RNil)
+  }
+
+  override def rle: RList[(T, Int)] = {
+    def loop(remaining: RList[T], currentPair: (T, Int), accumulator: RList[(T, Int)]): RList[(T, Int)] =
+      if (remaining.isEmpty) currentPair :: accumulator
+      else if (remaining.head == currentPair._1) loop(remaining.tail, (currentPair._1, currentPair._2 + 1), accumulator)
+      else loop(remaining.tail, (remaining.head, 1), currentPair :: accumulator)
+
+    loop(self.tail, (self.head, 1), RNil).reverse
+  }
 }
 
 object test extends App {
@@ -153,6 +178,11 @@ object test extends App {
   /*  println(list.removeAt(2))
   println(list.removeAt(0))*/
 
+  /*
   println(list.map(_ * 2))
   println(list.flatMap(e => RList.from(List(e, e * 2))))
+  println(list.filter(_ % 2 == 0))
+   */
+
+  println(RList.from(List(1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 5, 5, 6, 7)).rle)
 }
