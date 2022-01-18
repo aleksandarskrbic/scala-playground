@@ -125,7 +125,13 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
     loop(self.reverse, RNil)
   }
 
-  override def flatMap[S](fn: T => RList[S]): RList[S] = ???
+  override def flatMap[S](fn: T => RList[S]): RList[S] = {
+    @tailrec def loop(remaining: RList[T], result: RList[S]): RList[S] =
+      if (remaining.isEmpty) result
+      else loop(remaining.tail, fn(remaining.head) ++ result)
+
+    loop(self.reverse, RNil)
+  }
 
   override def filter(fn: T => Boolean): RList[T] = ???
 }
@@ -148,4 +154,5 @@ object test extends App {
   println(list.removeAt(0))*/
 
   println(list.map(_ * 2))
+  println(list.flatMap(e => RList.from(List(e, e * 2))))
 }
