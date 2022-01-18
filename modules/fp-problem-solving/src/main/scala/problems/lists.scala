@@ -37,6 +37,8 @@ sealed abstract class RList[+T] { self =>
 
     loop(self.reverse, other)
   }
+
+  def removeAt(index: Int): RList[T]
 }
 
 object RList {
@@ -49,7 +51,7 @@ object RList {
   }
 }
 
-case object RNil extends RList[Nothing] {
+case object RNil extends RList[Nothing] { self =>
   override def head: Nothing =
     throw new NoSuchElementException
 
@@ -64,6 +66,9 @@ case object RNil extends RList[Nothing] {
 
   override def apply(index: Int): Nothing =
     throw new NoSuchElementException
+
+  def removeAt(index: Int): RList[Nothing] =
+    self
 }
 
 case class ::[+T](override val head: T, override val tail: RList[T]) extends RList[T] { self =>
@@ -87,18 +92,33 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
     if (index < 0) throw new NoSuchElementException
     else loop(self, 0)
   }
+
+  override def removeAt(index: Int): RList[T] = {
+    @tailrec def loop(remaining: RList[T], result: RList[T], currentIndex: Int): RList[T] =
+      if (remaining.isEmpty) result
+      else if (currentIndex == index) result ++ remaining.tail
+      else loop(remaining.tail, remaining.head :: result, currentIndex + 1)
+
+    if (index < 0) self
+    else if (index == 0) tail
+    else loop(self, RNil, 0).reverse
+  }
 }
 
 object test extends App {
-  val list1 = ::(1, ::(2, ::(3, RNil)))
-  val list2 = 1 :: 2 :: 3 :: RNil
+  val list = 1 :: 2 :: 3 :: RNil
 
-  println(list1)
-  println(list1(1))
-  println(list2.length)
-  println(list1.reverse)
+  /*  println(list)
+  println(list(1))
+
+  println(list.length)
+  println(list.reverse)
+
   println(RList.from(List(3, 4, 5)))
 
   val concatenated = RList.from(List(1, 2, 3)) ++ RList.from(List(4, 5, 6))
-  println(concatenated)
+  println(concatenated)*/
+
+  println(list.removeAt(2))
+  println(list.removeAt(0))
 }
