@@ -178,7 +178,13 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
     loop(self, 0, RNil).reverse
   }
 
-  override def rotate(n: Int): RList[T] = ???
+  override def rotate(n: Int): RList[T] = {
+    @tailrec def split(remaining: RList[T], result: RList[T]): RList[T] =
+      if (result.length == n) remaining ++ result.reverse
+      else split(remaining.tail, remaining.head :: result)
+
+    split(self, RNil)
+  }
 }
 
 object test extends App {
@@ -205,6 +211,8 @@ object test extends App {
    */
 
   println(RList.from(List(1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 5, 5, 6, 7)).rle)
-
+  RList.from(List(1, 2, 3, 4, 5, 6, 7, 8, 9))
   println(list.duplicateEach(3))
+  println(RList.from(List(1, 2, 3, 4, 5, 6, 7, 8, 9)).rotate(3))
+  println(RList.from(1 to 10000).rotate(100))
 }
