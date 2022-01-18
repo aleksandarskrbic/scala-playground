@@ -28,6 +28,15 @@ sealed abstract class RList[+T] { self =>
 
     loop(self, RNil)
   }
+
+  def ++[S >: T](other: RList[S]): RList[S] = {
+    @tailrec
+    def loop(remaining: RList[S], result: RList[S]): RList[S] =
+      if (remaining.isEmpty) result
+      else loop(remaining.tail, remaining.head :: result)
+
+    loop(self.reverse, other)
+  }
 }
 
 object RList {
@@ -89,4 +98,7 @@ object test extends App {
   println(list2.length)
   println(list1.reverse)
   println(RList.from(List(3, 4, 5)))
+
+  val concatenated = RList.from(List(1, 2, 3)) ++ RList.from(List(4, 5, 6))
+  println(concatenated)
 }
