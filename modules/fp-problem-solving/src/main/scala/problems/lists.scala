@@ -46,6 +46,9 @@ sealed abstract class RList[+T] { self =>
   def duplicateEach(n: Int): RList[T]
   // rotate each element n positions to left
   def rotate(n: Int): RList[T]
+  def sample(n: Int): RList[T]
+
+  def sorted[S >: T](ordering: Ordering[S]): RList[S]
 }
 
 object RList {
@@ -96,6 +99,12 @@ case object RNil extends RList[Nothing] { self =>
     RNil
 
   override def rotate(n: Int): RList[Nothing] =
+    RNil
+
+  override def sample(n: Int): RList[Nothing] =
+    RNil
+
+  override def sorted[S >: Nothing](ordering: Ordering[S]): RList[S] =
     RNil
 }
 
@@ -185,6 +194,19 @@ case class ::[+T](override val head: T, override val tail: RList[T]) extends RLi
 
     split(self, RNil)
   }
+
+  override def sample(n: Int): RList[T] = {
+    val random = scala.util.Random
+    val maxIdx = self.length
+
+    @tailrec def loop(result: RList[T], count: Int): RList[T] =
+      if (n == count) result
+      else loop(self(random.nextInt(maxIdx)) :: result, count + 1)
+
+    loop(RNil, 0)
+  }
+
+  override def sorted[S >: T](ordering: Ordering[S]): RList[S] = ???
 }
 
 object test extends App {
@@ -210,9 +232,11 @@ object test extends App {
   println(list.filter(_ % 2 == 0))
    */
 
-  println(RList.from(List(1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 5, 5, 6, 7)).rle)
+  /*  println(RList.from(List(1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 5, 5, 6, 7)).rle)
   RList.from(List(1, 2, 3, 4, 5, 6, 7, 8, 9))
   println(list.duplicateEach(3))
   println(RList.from(List(1, 2, 3, 4, 5, 6, 7, 8, 9)).rotate(3))
-  println(RList.from(1 to 10000).rotate(100))
+  println(RList.from(1 to 10000).rotate(100))*/
+
+  println(RList.from(1 to 10000).sample(3))
 }
