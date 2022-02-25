@@ -5,6 +5,9 @@ scalaVersion := "2.13.8"
 val `zio-from-scratch` = project
   .in(file("modules/zio-from-scratch"))
 
+val `countdown-latch` = project
+  .in(file("modules/countdown-latch"))
+
 val `essential-effects` = project
   .in(file("modules/essential-effects"))
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.1.0")
