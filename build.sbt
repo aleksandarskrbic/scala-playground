@@ -1,6 +1,9 @@
 name := "functional-scala-playground"
 version := "0.1"
-scalaVersion := "2.13.6"
+scalaVersion := "2.13.8"
+
+val `zio-from-scratch` = project
+  .in(file("modules/zio-from-scratch"))
 
 val `essential-effects` = project
   .in(file("modules/essential-effects"))
