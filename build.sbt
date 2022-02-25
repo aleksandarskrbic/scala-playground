@@ -5,8 +5,8 @@ scalaVersion := "2.13.8"
 val `zio-from-scratch` = project
   .in(file("modules/zio-from-scratch"))
 
-val `countdown-latch` = project
-  .in(file("modules/countdown-latch"))
+val `async-countdown-latch` = project
+  .in(file("modules/async-countdown-latch"))
 
 val `essential-effects` = project
   .in(file("modules/essential-effects"))
