@@ -4,7 +4,7 @@ import scala.concurrent.blocking
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.util.concurrent.CountDownLatch
 
-object Main extends App {
+object DefaultCountDownLatchDemo extends App {
   val threadCount = 4
   val iterations  = 1000000
   var results     = Map.empty[Int, Int]
