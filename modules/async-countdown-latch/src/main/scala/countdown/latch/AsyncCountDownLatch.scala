@@ -3,7 +3,7 @@ package countdown.latch
 import scala.annotation.tailrec
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.{ Executors, ScheduledExecutorService }
+import java.util.concurrent.{ Executors, RejectedExecutionException, ScheduledExecutorService }
 import scala.concurrent.{ ExecutionContext, Future, Promise, TimeoutException }
 
 final class AsyncCountDownLatch(count: Int)(implicit ec: ExecutionContext) extends AutoCloseable {
@@ -37,11 +37,16 @@ final class AsyncCountDownLatch(count: Int)(implicit ec: ExecutionContext) exten
       p.tryFailure(ex)
     }
 
-    val cancelToken = scheduler.schedule(timeoutTask, timeout.length, timeout.unit)
+    try {
+      val cancelToken = scheduler.schedule(timeoutTask, timeout.length, timeout.unit)
 
-    p.future.onComplete { res =>
-      val trigger = res.isSuccess || res.failed.get != ex
-      if (trigger) cancelToken.cancel(true)
+      p.future.onComplete { res =>
+        val trigger = res.isSuccess || res.failed.get != ex
+        if (trigger) cancelToken.cancel(true)
+      }
+    } catch {
+      case ex: RejectedExecutionException =>
+        ()
     }
   }
 
@@ -49,7 +54,7 @@ final class AsyncCountDownLatch(count: Int)(implicit ec: ExecutionContext) exten
     state.get() match {
       case current @ State(count, tasks) =>
         if (count > 0) {
-          val update = State(count + 1, tasks)
+          val update = State(count - 1, tasks)
           if (!state.compareAndSet(current, update))
             countDown() // retry until succeed
           else if (update.count == 0) {
