@@ -27,6 +27,6 @@ object ZIO {
 
   case class Zip[A, B](left: ZIO[A], right: ZIO[B]) extends ZIO[(A, B)] {
     override def run(callback: ((A, B)) => Unit): Unit =
-
+      left.run(a => right.run(b => callback(a, b)))
   }
 }
