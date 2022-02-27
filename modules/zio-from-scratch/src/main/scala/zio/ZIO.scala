@@ -36,6 +36,14 @@ sealed trait ZIO[+A] { self =>
   // callback or continuation
   def run(callback: A => Unit): Unit
 
+  def zipPar[B](that: ZIO[B]): ZIO[(A, B)] =
+    for {
+      fa <- self.fork
+      fb <- that.fork
+      a <- fa.join
+      b <- fb.join
+    } yield (a, b)
+
   def zip[B](that: ZIO[B]): ZIO[(A, B)] =
     for {
       a <- self

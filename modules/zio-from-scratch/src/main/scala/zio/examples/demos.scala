@@ -74,3 +74,13 @@ object Fork extends ZIOApp {
 
   override def run = forkedZIO
 }
+
+object ZipPar extends ZIOApp {
+  val asyncZIO = ZIO.async[Int] { complete =>
+    println("Async started")
+    Thread.sleep(2500)
+    complete(scala.util.Random.nextInt(999))
+  }
+
+  override def run = asyncZIO zipPar asyncZIO
+}
