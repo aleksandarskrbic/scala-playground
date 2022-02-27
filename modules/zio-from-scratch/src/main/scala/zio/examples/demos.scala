@@ -32,3 +32,11 @@ object Map extends ZIOApp {
 
   override def run: ZIO[Any] = mapped
 }
+
+object FlatMap extends ZIOApp {
+  val mapped: ZIO[String] = ZIO.succeed(Person("John", "Doe")).map(_.lastname)
+
+  val flatMapped = mapped.flatMap(res => ZIO.succeed(println(s"$res")).map(_ => "Done"))
+
+  override def run: ZIO[Any] = flatMapped
+}
