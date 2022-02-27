@@ -26,3 +26,9 @@ object Zip extends ZIOApp {
 
   override def run: ZIO[Any] = ZIO.succeed(zipped.steps)
 }
+
+object Map extends ZIOApp {
+  val mapped: ZIO[String] = ZIO.succeed(Person("John", "Doe")).map(_.lastname)
+
+  override def run: ZIO[Any] = mapped
+}
