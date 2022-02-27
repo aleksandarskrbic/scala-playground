@@ -24,5 +24,5 @@ object SucceedNowPrint extends ZIOApp {
 object Zip extends ZIOApp {
   val zipped: ZIO[(Int, String)] = ZIO.succeed(1) zip ZIO.succeed("one")
 
-  override def run: ZIO[Any] = zipped
+  override def run: ZIO[Any] = ZIO.succeed(zipped.steps)
 }

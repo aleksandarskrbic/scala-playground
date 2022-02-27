@@ -5,6 +5,12 @@ trait ZIO[+A] { self =>
   def run(callback: A => Unit): Unit
   def zip[B](that: ZIO[B]): ZIO[(A, B)] =
     ZIO.Zip(self, that)
+
+  def steps: Int = self match {
+    case ZIO.Effect(_)      => 1
+    case ZIO.Succeed(_)     => 1
+    case zio: ZIO.Zip[_, _] => zio.left.steps + zio.right.steps
+  }
 }
 
 object ZIO {
