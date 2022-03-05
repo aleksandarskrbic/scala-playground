@@ -12,6 +12,13 @@ val `essential-effects` = project
   .in(file("modules/essential-effects"))
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.1.0")
 
+lazy val `cats-effect-course` = project
+  .in(file("modules/cats-effect-course"))
+  .settings(
+    scalaVersion := "2.13.7",
+    libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.4"
+  )
+
 val `scala-with-cats` = project
   .in(file("modules/scala-with-cats"))
   .settings(
