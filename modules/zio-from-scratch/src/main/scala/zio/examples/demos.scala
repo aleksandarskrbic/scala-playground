@@ -67,9 +67,9 @@ object Fork extends ZIOApp {
     for {
       fa <- asyncZIO.fork
       fb <- asyncZIO.fork
-      _ <- printLine("fibers are forked!!!")
-      a <- fa.join
-      b <- fb.join
+      _  <- printLine("fibers are forked!!!")
+      a  <- fa.join
+      b  <- fb.join
     } yield s"Results is $a and $b"
 
   override def run = forkedZIO
@@ -83,4 +83,10 @@ object ZipPar extends ZIOApp {
   }
 
   override def run = asyncZIO zipPar asyncZIO
+}
+
+object StackSafety extends ZIOApp {
+  val program = ZIO.succeed(println("howdy")).repeat(10000)
+
+  override def run = program
 }
