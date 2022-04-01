@@ -5,6 +5,30 @@ scalaVersion := "2.13.8"
 val `zio-from-scratch` = project
   .in(file("modules/zio-from-scratch"))
 
+// Flink Course
+val flinkVersion    = "1.13.2"
+val postgresVersion = "42.2.2"
+val logbackVersion  = "1.2.10"
+
+val `flink-course` = project
+  .in(file("modules/flink-course"))
+  .settings(scalaVersion := "2.12.15")
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.apache.flink" %% "flink-clients"         % flinkVersion,
+      "org.apache.flink" %% "flink-scala"           % flinkVersion,
+      "org.apache.flink" %% "flink-streaming-scala" % flinkVersion
+    ) ++ Seq(
+      "org.apache.flink" %% "flink-connector-kafka"     % flinkVersion,
+      "org.apache.flink" %% "flink-connector-cassandra" % flinkVersion,
+      "org.apache.flink" %% "flink-connector-jdbc"      % flinkVersion,
+      "org.postgresql"   % "postgresql"                 % postgresVersion
+    ) ++ Seq(
+      "ch.qos.logback" % "logback-core"    % logbackVersion,
+      "ch.qos.logback" % "logback-classic" % logbackVersion
+    )
+  )
+
 val `async-countdown-latch` = project
   .in(file("modules/async-countdown-latch"))
 

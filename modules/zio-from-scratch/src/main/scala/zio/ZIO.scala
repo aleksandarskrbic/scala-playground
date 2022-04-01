@@ -1,6 +1,5 @@
 package zio
 
-import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 
 trait Fiber[+A] {
@@ -26,9 +25,7 @@ class FiberImpl[A](zio: ZIO[A]) extends Fiber[A] {
   override def join: ZIO[A] =
     maybeResult match {
       case Some(a) => ZIO.succeedNow(a)
-      case None    => ZIO.async { complete =>
-        callbacks = complete :: callbacks
-      }
+      case None    => ZIO.async(complete => callbacks = complete :: callbacks)
     }
 }
 
@@ -40,8 +37,8 @@ sealed trait ZIO[+A] { self =>
     for {
       fa <- self.fork
       fb <- that.fork
-      a <- fa.join
-      b <- fb.join
+      a  <- fa.join
+      b  <- fb.join
     } yield (a, b)
 
   def zip[B](that: ZIO[B]): ZIO[(A, B)] =
