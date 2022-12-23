@@ -77,6 +77,10 @@ lazy val `shapeless-guide` = project
 
 lazy val `fp-problem-solving` = project
   .in(file("modules/fp-problem-solving"))
-  .settings(scalaVersion := "2.13.6")
+  .settings(scalaVersion := "2.13.10")
+  .settings(
+    libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.14",
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14" % "test"
+  )
 
 addCommandAlias("fmt", "all scalafmtSbt scalafmtAll")
