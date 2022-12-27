@@ -1,3 +1,0 @@
-package ce
-
-object effects {}

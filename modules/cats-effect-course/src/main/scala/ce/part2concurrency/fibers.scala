@@ -1,9 +1,8 @@
-package ce
+package ce.part2concurrency
 
-import ce.util._
 import cats.effect._
+import ce.util._
 
-import scala.concurrent
 import scala.concurrent.duration._
 
 object fibers extends IOApp.Simple {
