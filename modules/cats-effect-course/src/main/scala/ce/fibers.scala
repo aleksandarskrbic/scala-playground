@@ -2,6 +2,8 @@ package ce
 
 import ce.util._
 import cats.effect._
+
+import scala.concurrent
 import scala.concurrent.duration._
 
 object fibers extends IOApp.Simple {
@@ -28,11 +30,11 @@ object fibers extends IOApp.Simple {
     val cancellationHandler = task.onCancel(IO("task is canceled").debug.void)
 
     for {
-      f <- cancellationHandler.start
-      _ <- IO.sleep(100.milliseconds) >> IO("canceling").debug
-      _ <- f.cancel
-      r <- f.join
-    } yield r
+      fib    <- cancellationHandler.start
+      _      <- IO.sleep(100.milliseconds) >> IO("canceling").debug
+      _      <- fib.cancel
+      result <- fib.join
+    } yield result
   }
 
   override def run: IO[Unit] =
@@ -90,7 +92,17 @@ object exercises {
                }
     } yield result
 
-  def timeout[A](io: IO[A], duration: FiniteDuration): IO[A] = ???
+  def timeout[A](io: IO[A], duration: FiniteDuration): IO[A] =
+    for {
+      fib     <- io.start
+      _       <- (IO.sleep(duration) >> fib.cancel).start
+      outcome <- fib.join
+      result <- outcome match {
+                 case Outcome.Succeeded(fa)  => fa
+                 case Outcome.Errored(error) => IO.raiseError(error)
+                 case Outcome.Canceled()     => IO.raiseError(new RuntimeException(s"Fiber cancelled"))
+               }
+    } yield result
 }
 
 object tests extends IOApp.Simple {
@@ -107,6 +119,11 @@ object tests extends IOApp.Simple {
     tupleIOs(firstIO, secondIO).debug.void
   }
 
+  def testEx3() = {
+    val aComputation = IO("starting").debug >> IO.sleep(1.second) >> IO("done!").debug >> IO(42)
+    timeout(aComputation, 500.millis).debug.void
+  }
+
   override def run: IO[Unit] =
-    testEx2
+    testEx3
 }
