@@ -1,8 +1,7 @@
 package ce.part2concurrency
 
-import cats.effect._
 import ce.util._
-
+import cats.effect._
 import scala.concurrent.duration._
 
 object fibers extends IOApp.Simple {
@@ -104,7 +103,7 @@ object exercises {
     } yield result
 }
 
-object tests extends IOApp.Simple {
+object fibersTest extends IOApp.Simple {
   import exercises._
 
   def testEx1() = {
