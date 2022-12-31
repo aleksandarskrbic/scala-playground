@@ -45,5 +45,5 @@ object blockingIOTest extends IOApp.Simple {
   import blockingIO._
 
   override def run: IO[Unit] =
-    testThousandEffectsSwitch
+    testThousandEffectsSwitch.void
 }
